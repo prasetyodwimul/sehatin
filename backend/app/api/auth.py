@@ -33,7 +33,7 @@ def _set_session_cookie(response: Response, token: str) -> None:
         value=token,
         httponly=True,
         secure=settings.auth_cookie_secure,
-        samesite="lax",
+        samesite="none",
         max_age=settings.auth_session_minutes * 60,
         path="/",
     )
@@ -112,3 +112,4 @@ def update_profile(
         db.rollback()
         raise HTTPException(status_code=503, detail="Profil belum dapat disimpan. Coba lagi nanti.")
     return _user_response(user)
+
