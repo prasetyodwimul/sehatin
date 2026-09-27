@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Minus, Plus } from "lucide-react";
 import { Alert, Button, ProgressBar, Textarea } from "@/components/ui";
 import { FOOD_GROUP_ORDER, MealIllustration, FoodGroupIcon, foodGroupsFrom, type FoodGroupKey } from "@/components/nutrition-visuals";
 import { AuthGate } from "@/components/auth-gate";
@@ -136,7 +136,7 @@ function CountResult({ task, value, editable, onChange, showTargetSuffix = true 
       <button type="button" disabled={!editable || amount <= 0} aria-label={`Kurangi hasil ${label}`} onClick={() => onChange(String(Math.max(0, amount - 1)))} className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-lg font-semibold disabled:opacity-40">âˆ’</button>
       <label className="sr-only" htmlFor={`result-${task.key}`}>Hasil aktual {label}</label>
       <input id={`result-${task.key}`} aria-label={`Hasil aktual ${label}`} type="number" min="0" step="1" inputMode="numeric" disabled={!editable} value={numeric} onChange={(event) => onChange(event.target.value)} className="h-9 w-20 rounded-lg border border-line bg-white px-2 text-center text-sm font-semibold outline-none focus:border-primary" />
-      <button type="button" disabled={!editable} aria-label={`Tambah hasil ${label}`} onClick={() => onChange(String(amount + 1))} className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-lg font-semibold disabled:opacity-40">+</button>
+      <button type="button" disabled={!editable} aria-label={`Tambah hasil ${label}`} onClick={() => onChange(String(amount + 1))} className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-lg font-semibold disabled:opacity-40"><Plus className="h-4 w-4" strokeWidth={2.25} aria-hidden="true" /></button>
       {showTargetSuffix && <span className="text-xs text-muted">/ {String(task.target_value ?? "â€”")} {task.unit ?? ""}</span>}
     </div>
   );
@@ -902,4 +902,5 @@ export function NutritionProgramDailyWorkspace({ program, day, onProgramRefresh 
     </section>
   );
 }
+
 

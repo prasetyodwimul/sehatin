@@ -1,4 +1,4 @@
-export const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
+﻿export const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
 export const SESSION_EXPIRED_EVENT = "sehatin:session-expired";
 
 export class ApiError extends Error {
@@ -22,9 +22,16 @@ type ApiErrorBody = {
 type ApiFetchOptions = RequestInit & { timeoutMs?: number };
 
 function requireApiBase() {
+  // Browser menggunakan proxy same-origin agar cookie session
+  // tidak bergantung pada third-party/cross-site cookie iOS.
+  if (typeof window !== "undefined") {
+    return "/backend";
+  }
+
   if (!API_BASE) {
     throw new ApiError("Konfigurasi API belum tersedia. Pastikan NEXT_PUBLIC_API_URL sudah diatur.");
   }
+
   return API_BASE;
 }
 
@@ -74,3 +81,4 @@ export async function apiFetch<T>(path: string, init: ApiFetchOptions = {}): Pro
     externalSignal?.removeEventListener("abort", onExternalAbort);
   }
 }
+

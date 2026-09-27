@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
 const isDev = process.env.NODE_ENV !== "production";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 let apiOrigin = "http://localhost:8000";
@@ -41,9 +41,20 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
+  async rewrites() {
+    return [
+      {
+        source: "/backend/:path*",
+        destination: `${apiOrigin}/:path*`,
+      },
+    ];
+  },
+
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
 };
 
 module.exports = nextConfig;
+
