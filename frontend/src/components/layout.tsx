@@ -161,7 +161,7 @@ export function Navbar() {
       >
         <div className={`mx-auto w-full transition-[max-width] duration-300 ${scrolled ? (isAbout ? "max-w-[880px]" : "max-w-[1240px]") : "max-w-none"}`}>
           <div
-            className={`relative overflow-hidden bg-[#064f4a] px-3 ring-1 ring-black/5 transition-[border-radius,box-shadow] duration-300 sm:px-4 ${
+            className={`relative overflow-visible bg-[#064f4a] px-3 ring-1 ring-black/5 transition-[border-radius,box-shadow] duration-300 sm:px-4 ${
               scrolled
                 ? drawerOpen
                   ? "rounded-[24px] shadow-[0_18px_45px_rgba(6,79,74,.20)]"
@@ -308,3 +308,4 @@ export function PageHeader({ title, subtitle, stepIndicator }: { title: string; 
     </div>
   );
 }
+
