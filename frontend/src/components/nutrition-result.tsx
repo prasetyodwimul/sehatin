@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowRight, CalendarDays, CheckCircle2, ListChecks, LockKeyhole, Save, Soup, Sparkles, Target, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { ArrowDown, ArrowRight, CalendarDays, Check, CheckCircle2, ListChecks, LockKeyhole, Save, Soup, Sparkles, Target, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import { AuthGate } from "@/components/auth-gate";
 import { useAuth } from "@/components/auth-provider";
 import { MealIllustration, foodGroupsFrom } from "@/components/nutrition-visuals";
@@ -277,7 +277,7 @@ export function NutritionResult({ stage }: { stage: NutritionStage }) {
                   <span className="mt-2 block text-sm leading-6 text-secondary">{goal.description}</span>
                 </span>
                 <span className={`mt-5 inline-flex w-fit items-center gap-2 text-xs font-bold uppercase tracking-[.08em] ${selected ? "text-primary-dark" : "text-muted"}`}>{selected ? "Fokus dipilih" : "Pilih fokus"}</span>
-                <span aria-hidden="true" className={`absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-md border ${selected ? "border-primary bg-primary text-white" : "border-line bg-white"}`}>{selected ? "✓" : ""}</span>
+                <span aria-hidden="true" className={`absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-md border ${selected ? "border-primary bg-primary text-white" : "border-line bg-white"}`}>{selected ? <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" /> : null}</span>
               </button>;
             })}
           </div>
@@ -409,7 +409,7 @@ export function NutritionResult({ stage }: { stage: NutritionStage }) {
           return <button key={goal.goal_key} type="button" aria-pressed={selected} onClick={() => { setSelectedGoalKey(goal.goal_key); if (!programNameTouched) setProgramName(elderlyProgramName(goal.goal_key)); }} className={`relative flex min-h-44 w-full flex-col justify-between rounded-xl border p-5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${selected ? "border-primary bg-primary-light/30 shadow-[0_8px_24px_rgba(16,123,112,.08)]" : "border-line bg-white hover:border-primary/50 hover:bg-background"}`}>
             <span><span className="block pr-8 text-lg font-semibold text-text">{goal.title}</span><span className="mt-2 block text-sm leading-6 text-secondary">{goal.description}</span>{goal.selection_reason ? <span className="mt-3 block text-xs leading-5 text-muted">Mengapa: {goal.selection_reason}</span> : null}</span>
             <span className="mt-5 grid w-full grid-cols-2 gap-3 border-t border-line pt-4 text-xs"><span><span className="block text-muted">Kondisi awal</span><span className="mt-1 block font-semibold text-text">{goal.baseline_label ?? `${goal.baseline} ${goal.unit}`}</span></span><span><span className="block text-muted">Target</span><span className="mt-1 block font-semibold text-text">{goal.target_label ?? `${goal.target} / ${goal.duration}`}</span></span></span>
-            <span aria-hidden="true" className={`absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-md border ${selected ? "border-primary bg-primary text-white" : "border-line bg-white"}`}>{selected ? "✓" : ""}</span>
+            <span aria-hidden="true" className={`absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-md border ${selected ? "border-primary bg-primary text-white" : "border-line bg-white"}`}>{selected ? <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" /> : null}</span>
           </button>;
         })}</div>
       </section> : null}

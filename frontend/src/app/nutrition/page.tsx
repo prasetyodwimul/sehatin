@@ -42,7 +42,7 @@ export default function NutritionHomePage() {
   const showSavedProgram = status === "authenticated" && Boolean(user);
 
   return (
-    <>
+    <div className="nutrition-program-mobile-safe nutrition-home-mobile-safe">
       <section className="border-b border-line bg-[linear-gradient(135deg,#f7fbf9,#f5fbff_55%,#fff8ea)]">
         <Container className="py-14 md:py-20">
           <Reveal>
@@ -127,6 +127,6 @@ export default function NutritionHomePage() {
         </section>
       )}
 
-    </>
+    </div>
   );
 }

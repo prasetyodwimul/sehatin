@@ -637,6 +637,54 @@ textarea {
   }
 }
 
+/* Nutrition landing: keep iPhone artwork inside the viewport instead of cropping/zooming it. */
+.nutrition-hero-illustration {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.nutrition-hero-illustration img {
+  max-width: 100%;
+}
+
+@media (max-width: 639px) {
+  .nutrition-home-mobile-safe {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .nutrition-home-mobile-safe > section {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .nutrition-home-mobile-safe .nutrition-hero-illustration {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.75rem;
+    border-radius: 1.5rem;
+  }
+
+  .nutrition-home-mobile-safe .nutrition-hero-illustration > div {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 1.25rem;
+  }
+
+  .nutrition-home-mobile-safe .nutrition-hero-illustration img {
+    object-fit: contain !important;
+  }
+
+  .nutrition-home-mobile-safe a {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
 /* iOS Safari tidak melakukan text auto enlargement */
 html,
 body {

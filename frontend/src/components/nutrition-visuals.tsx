@@ -261,10 +261,10 @@ export function StageCompanionIllustration({ stage, compact = false }: { stage: 
   const label = stageLabel(stage);
   const categoryAsset = stageVisualAsset(stage);
 
-  if (context === "landing") return <div className="rounded-[30px] bg-[#eef7f2] p-4 shadow-[0_16px_44px_rgba(21,67,55,.06)]" role="img" aria-label="Grafis Nutrition Assistant umum tanpa figur manusia">
+  if (context === "landing") return <div className="nutrition-hero-illustration rounded-[30px] bg-[#eef7f2] p-4 shadow-[0_16px_44px_rgba(21,67,55,.06)]" role="img" aria-label="Grafis Nutrition Assistant umum tanpa figur manusia">
     <div className="relative aspect-[16/11] overflow-hidden rounded-[24px] bg-white/70">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/images/sehatin/nutrition-hero-general.webp" alt="" className="absolute inset-0 h-full w-full object-cover object-center" aria-hidden="true" />
+      <img src="/images/sehatin/nutrition-hero-general.webp" alt="" className="absolute inset-0 h-full w-full object-contain object-center" aria-hidden="true" />
     </div>
   </div>;
 

@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CheckCircle2, Minus, Plus } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, Minus, Plus } from "lucide-react";
 import { Alert, Button, ProgressBar, Textarea } from "@/components/ui";
 import { FOOD_GROUP_ORDER, MealIllustration, FoodGroupIcon, foodGroupsFrom, type FoodGroupKey } from "@/components/nutrition-visuals";
 import { AuthGate } from "@/components/auth-gate";
@@ -50,7 +50,7 @@ const GROUP_LABELS: Record<FoodGroupKey, string> = {
   "healthy-fat": "Lemak baik",
 };
 
-function text(value: unknown, fallback = "â€”") {
+function text(value: unknown, fallback = "—") {
   return typeof value === "string" && value.trim() ? value : fallback;
 }
 
@@ -117,12 +117,12 @@ function stage6StatusDisplay(status: string, adherence?: number | null) {
 }
 
 function targetDisplay(task: ProgramTask) {
-  return task.target_label || `${String(task.target_value ?? "â€”")} ${task.unit ?? ""}`.trim();
+  return task.target_label || `${String(task.target_value ?? "—")} ${task.unit ?? ""}`.trim();
 }
 
 function actualDisplay(task: ProgramTask, value: unknown, includeTarget = true) {
   if (!hasResult(task, value)) return "Belum dicatat";
-  if (task.input_type === "count") return includeTarget ? `${String(value)} / ${String(task.target_value ?? "â€”")} ${task.unit ?? ""}`.trim() : `${String(value)} ${task.unit ?? ""}`.trim();
+  if (task.input_type === "count") return includeTarget ? `${String(value)} / ${String(task.target_value ?? "—")} ${task.unit ?? ""}`.trim() : `${String(value)} ${task.unit ?? ""}`.trim();
   if (task.input_type === "boolean") return value ? "Ya" : "Tidak";
   return task.options?.find((option) => option.value === String(value))?.label ?? String(value);
 }
@@ -133,11 +133,11 @@ function CountResult({ task, value, editable, onChange, showTargetSuffix = true 
   const label = task.action_text ?? task.action ?? task.target_label;
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <button type="button" disabled={!editable || amount <= 0} aria-label={`Kurangi hasil ${label}`} onClick={() => onChange(String(Math.max(0, amount - 1)))} className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-lg font-semibold disabled:opacity-40">âˆ’</button>
+      <button type="button" disabled={!editable || amount <= 0} aria-label={`Kurangi hasil ${label}`} onClick={() => onChange(String(Math.max(0, amount - 1)))} className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-lg font-semibold disabled:opacity-40"><Minus className="h-4 w-4" strokeWidth={2.25} aria-hidden="true" /></button>
       <label className="sr-only" htmlFor={`result-${task.key}`}>Hasil aktual {label}</label>
       <input id={`result-${task.key}`} aria-label={`Hasil aktual ${label}`} type="number" min="0" step="1" inputMode="numeric" disabled={!editable} value={numeric} onChange={(event) => onChange(event.target.value)} className="h-9 w-20 rounded-lg border border-line bg-white px-2 text-center text-sm font-semibold outline-none focus:border-primary" />
       <button type="button" disabled={!editable} aria-label={`Tambah hasil ${label}`} onClick={() => onChange(String(amount + 1))} className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white text-lg font-semibold disabled:opacity-40"><Plus className="h-4 w-4" strokeWidth={2.25} aria-hidden="true" /></button>
-      {showTargetSuffix && <span className="text-xs text-muted">/ {String(task.target_value ?? "â€”")} {task.unit ?? ""}</span>}
+      {showTargetSuffix && <span className="text-xs text-muted">/ {String(task.target_value ?? "—")} {task.unit ?? ""}</span>}
     </div>
   );
 }
@@ -182,7 +182,7 @@ function NutritionBlockReviewInline({ review }: { review: BlockReview }) {
 
     <div className="mt-6 grid gap-5 border-y border-line py-5 sm:grid-cols-2">
       <div><p className="text-xs font-black uppercase tracking-[.1em] text-muted">Program</p><p className="mt-2 text-xl font-semibold">{programProgress?.completed_days ?? 0} / {programProgress?.planned_days ?? review.duration_days ?? 14} hari</p><p className="mt-1 text-sm text-secondary">{Math.round(programProgress?.percent ?? 0)}% block selesai</p></div>
-      <div><p className="text-xs font-black uppercase tracking-[.1em] text-muted">Tujuan</p><p className="mt-2 text-xl font-semibold">{blockStatusLabel(review.goal_status)}</p><p className="mt-1 text-sm text-secondary">{String(goalProgress?.actual ?? "â€”")} / {String(goalProgress?.target ?? "â€”")} {goalProgress?.unit ?? ""} Â· {Math.round(goalProgress?.percent ?? 0)}%</p></div>
+      <div><p className="text-xs font-black uppercase tracking-[.1em] text-muted">Tujuan</p><p className="mt-2 text-xl font-semibold">{blockStatusLabel(review.goal_status)}</p><p className="mt-1 text-sm text-secondary">{String(goalProgress?.actual ?? "—")} / {String(goalProgress?.target ?? "—")} {goalProgress?.unit ?? ""} · {Math.round(goalProgress?.percent ?? 0)}%</p></div>
     </div>
 
     <div className="mt-6 grid gap-5 md:grid-cols-2">
@@ -190,7 +190,7 @@ function NutritionBlockReviewInline({ review }: { review: BlockReview }) {
       <div><p className="text-xs font-black uppercase tracking-[.1em] text-amber-800">Apa yang masih perlu?</p><p className="mt-2 text-sm leading-7 text-secondary">{review.what_remains || "Belum ada area tambahan yang perlu diringkas."}</p></div>
     </div>
 
-    {metrics.length ? <div className="mt-6 overflow-x-auto" aria-label="Ringkasan fokus program"><table className="w-full min-w-[600px] border-collapse text-left text-sm"><thead><tr className="border-b border-line text-xs uppercase tracking-[.08em] text-muted"><th className="py-2 pr-4">Fokus</th><th className="py-2 pr-4">Target</th><th className="py-2 pr-4">Hasil</th><th className="py-2 pr-4">Pencapaian</th><th className="py-2">Status</th></tr></thead><tbody>{metrics.map((metric) => <tr key={metric.metric} className="border-b border-line/70"><td className="py-3 pr-4 font-semibold">{metric.label ?? metric.metric}</td><td className="py-3 pr-4 text-secondary">{String(metric.target ?? "â€”")} {metric.unit ?? ""}</td><td className="py-3 pr-4 text-secondary">{metric.actual ?? "â€”"}</td><td className="py-3 pr-4 text-secondary">{metric.adherence == null ? "â€”" : `${Math.round(metric.adherence)}%`}</td><td className="py-3 font-semibold">{metric.status?.replaceAll("_", " ") ?? "â€”"}</td></tr>)}</tbody></table></div> : null}
+    {metrics.length ? <div className="mt-6 overflow-x-auto" aria-label="Ringkasan fokus program"><table className="w-full min-w-[600px] border-collapse text-left text-sm"><thead><tr className="border-b border-line text-xs uppercase tracking-[.08em] text-muted"><th className="py-2 pr-4">Fokus</th><th className="py-2 pr-4">Target</th><th className="py-2 pr-4">Hasil</th><th className="py-2 pr-4">Pencapaian</th><th className="py-2">Status</th></tr></thead><tbody>{metrics.map((metric) => <tr key={metric.metric} className="border-b border-line/70"><td className="py-3 pr-4 font-semibold">{metric.label ?? metric.metric}</td><td className="py-3 pr-4 text-secondary">{String(metric.target ?? "—")} {metric.unit ?? ""}</td><td className="py-3 pr-4 text-secondary">{metric.actual ?? "—"}</td><td className="py-3 pr-4 text-secondary">{metric.adherence == null ? "—" : `${Math.round(metric.adherence)}%`}</td><td className="py-3 font-semibold">{metric.status?.replaceAll("_", " ") ?? "—"}</td></tr>)}</tbody></table></div> : null}
 
     <div className="mt-6 border-l-2 border-primary pl-4">
       <p className="text-xs font-black uppercase tracking-[.1em] text-muted">Langkah berikutnya</p>
@@ -587,7 +587,7 @@ export function NutritionProgramDailyWorkspace({ program, day, onProgramRefresh 
       <div className="max-w-md text-center">
         <span className="mx-auto block h-12 w-12 animate-spin rounded-full border-4 border-primary/15 border-t-primary" aria-hidden="true" />
         <p className="eyebrow mt-6">Memproses hasil</p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-[-.04em]">Menyiapkan progres Hari {day.day_number}â€¦</h2>
+        <h2 className="mt-2 text-3xl font-semibold tracking-[-.04em]">Menyiapkan progres Hari {day.day_number}…</h2>
         <p className="mt-3 text-sm leading-7 text-secondary">Menyusun hasil To Do, kondisi harian, dan ringkasan progres yang baru saja disimpan.</p>
         <div className="mx-auto mt-6 h-1.5 max-w-xs overflow-hidden rounded-full bg-slate-100"><div className="h-full w-2/3 animate-pulse rounded-full bg-primary" /></div>
       </div>
@@ -621,7 +621,7 @@ export function NutritionProgramDailyWorkspace({ program, day, onProgramRefresh 
         <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">{text(day.focus, "Panduan hari ini")}</h2>
         <p className="mt-3 max-w-3xl text-base leading-7 text-secondary">{text(day.recommended_action, statusCopy)}</p>
         <div className="mt-4 max-w-3xl border-l-2 border-primary pl-4 text-sm leading-6 text-secondary">{statusCopy}</div>
-        {childAdaptive && ((Array.isArray(mealDetails.safety_notes) && mealDetails.safety_notes.length > 0) || day.reference_notes?.length > 0) ? <details className="mt-4 max-w-3xl text-xs text-muted"><summary className="cursor-pointer font-semibold text-primary-dark">Dasar panduan & catatan aman</summary>{Array.isArray(mealDetails.safety_notes) && mealDetails.safety_notes.length > 0 ? <ul className="mt-2 space-y-1 leading-5">{(mealDetails.safety_notes as string[]).map((item) => <li key={item}>â€¢ {item}</li>)}</ul> : null}{day.reference_notes?.length > 0 ? <ul className="mt-2 space-y-1 leading-5">{day.reference_notes.map((item) => <li key={item}>{item}</li>)}</ul> : null}</details> : null}
+        {childAdaptive && ((Array.isArray(mealDetails.safety_notes) && mealDetails.safety_notes.length > 0) || day.reference_notes?.length > 0) ? <details className="mt-4 max-w-3xl text-xs text-muted"><summary className="cursor-pointer font-semibold text-primary-dark">Dasar panduan & catatan aman</summary>{Array.isArray(mealDetails.safety_notes) && mealDetails.safety_notes.length > 0 ? <ul className="mt-2 space-y-1 leading-5">{(mealDetails.safety_notes as string[]).map((item) => <li key={item}>• {item}</li>)}</ul> : null}{day.reference_notes?.length > 0 ? <ul className="mt-2 space-y-1 leading-5">{day.reference_notes.map((item) => <li key={item}>{item}</li>)}</ul> : null}</details> : null}
       </div>
 
       {childAdaptive && (day.action_details?.why_this_plan || program.goal) && <section className="mt-6 grid gap-3 md:grid-cols-2" aria-label="Konteks rencana hari ini">
@@ -639,7 +639,7 @@ export function NutritionProgramDailyWorkspace({ program, day, onProgramRefresh 
               </div>
             </div>
             <div className="min-w-0 px-5 pb-5 pt-1 sm:px-6 sm:pb-6 md:flex md:flex-col md:justify-center md:py-6">
-              {elderlySwallowingMode ? <p className="mb-3 inline-flex w-fit rounded-full border border-primary/20 bg-primary-light px-3 py-1 text-xs font-bold text-primary-dark">Fokus kandungan Â· bukan level tekstur</p> : null}
+              {elderlySwallowingMode ? <p className="mb-3 inline-flex w-fit rounded-full border border-primary/20 bg-primary-light px-3 py-1 text-xs font-bold text-primary-dark">Fokus kandungan · bukan level tekstur</p> : null}
               <h3 id="menu-today-title" className="break-words text-xl font-semibold tracking-[-0.025em] sm:text-2xl">{menuTitle}</h3>
               <p className="mt-2 text-sm leading-6 text-secondary">{text(mealDetails.occasion, "Waktu makan sesuai panduan program.")}</p>
               <div className="mt-5 flex flex-wrap gap-2.5">
@@ -682,7 +682,7 @@ export function NutritionProgramDailyWorkspace({ program, day, onProgramRefresh 
               const actionLabel = task.action_text ?? task.action ?? task.target_label;
               return (
                 <article key={task.key} className={`grid gap-3 px-4 py-4 sm:grid-cols-[36px_minmax(0,1fr)_minmax(260px,0.75fr)] sm:items-start sm:px-5 ${done ? "bg-primary-light/25" : "bg-white"}`}>
-                  <button type="button" disabled={!editable} aria-label={`${done ? "Batalkan tindakan" : "Tandai tindakan"}: ${actionLabel}`} aria-pressed={done} onClick={() => toggleAction(index)} className={`flex h-8 w-8 items-center justify-center rounded-full border ${done ? "border-primary bg-primary text-white" : "border-slate-300 bg-white text-muted"}`}>{done ? "âœ“" : ""}</button>
+                  <button type="button" disabled={!editable} aria-label={`${done ? "Batalkan tindakan" : "Tandai tindakan"}: ${actionLabel}`} aria-pressed={done} onClick={() => toggleAction(index)} className={`flex h-8 w-8 items-center justify-center rounded-full border ${done ? "border-primary bg-primary text-white" : "border-slate-300 bg-white text-muted"}`}>{done ? <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" /> : null}</button>
 
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-start justify-between gap-2">
@@ -694,9 +694,9 @@ export function NutritionProgramDailyWorkspace({ program, day, onProgramRefresh 
                     </div>
                     <dl className="mt-2 grid gap-x-4 gap-y-1 text-xs sm:grid-cols-[72px_1fr]">
                       <dt className="font-semibold uppercase tracking-[.08em] text-muted">Target</dt><dd className="text-secondary">{targetDisplay(task)}</dd>
-                      <dt className="font-semibold uppercase tracking-[.08em] text-muted">Status</dt><dd className={adherence === 100 ? "font-semibold text-primary-dark" : adherence === null ? "text-muted" : "font-semibold text-amber-700"}>{status}{!childAdaptive && adherence !== null ? ` Â· ${adherence}%` : ""}</dd>
+                      <dt className="font-semibold uppercase tracking-[.08em] text-muted">Status</dt><dd className={adherence === 100 ? "font-semibold text-primary-dark" : adherence === null ? "text-muted" : "font-semibold text-amber-700"}>{status}{!childAdaptive && adherence !== null ? ` · ${adherence}%` : ""}</dd>
                     </dl>
-                    {task.why && <details className="mt-2 text-xs text-muted"><summary className="cursor-pointer font-semibold text-primary-dark">Mengapa target ini?</summary><p className="mt-1 max-w-xl leading-5">{task.why}</p>{task.evidence_rule?.source_name && <p className="mt-1 leading-5">Dasar: {task.evidence_rule.source_name}{task.evidence_rule.source_url ? ` Â· ${task.evidence_rule.source_url}` : ""}</p>}</details>}
+                    {task.why && <details className="mt-2 text-xs text-muted"><summary className="cursor-pointer font-semibold text-primary-dark">Mengapa target ini?</summary><p className="mt-1 max-w-xl leading-5">{task.why}</p>{task.evidence_rule?.source_name && <p className="mt-1 leading-5">Dasar: {task.evidence_rule.source_name}{task.evidence_rule.source_url ? ` · ${task.evidence_rule.source_url}` : ""}</p>}</details>}
                   </div>
 
                   <div className="min-w-0 rounded-xl bg-background/60 p-3">
@@ -740,7 +740,7 @@ export function NutritionProgramDailyWorkspace({ program, day, onProgramRefresh 
               rows={3}
               maxLength={500}
               placeholder="Contoh: muncul ruam ringan, muntah sekali, sulit bernapas, kejang, atau reaksi lain yang terlihat hari ini."
-              helperText="Tuliskan apa yang benar-benar terlihat hari ini. Backend akan memeriksa tanda bahaya saat progress disimpan; pilihan â€˜Adaâ€™ saja tidak otomatis memicu Safety Hold."
+              helperText="Tuliskan apa yang benar-benar terlihat hari ini. Backend akan memeriksa tanda bahaya saat progress disimpan; pilihan ‘Ada’ saja tidak otomatis memicu Safety Hold."
               onChange={(event) => setQuickValue("reaction_notes", event.target.value)}
             />
           </div>}
@@ -837,11 +837,11 @@ export function NutritionProgramDailyWorkspace({ program, day, onProgramRefresh 
 
       {error && <div className="mt-6"><Alert variant="error" title="Perlu diperiksa">{error}</Alert></div>}
       {emergencySafety && <div className="mt-6">
-        <Alert variant="error" title="Tanda bahaya terdeteksi â€” segera cari pertolongan medis">
+        <Alert variant="error" title="Tanda bahaya terdeteksi — segera cari pertolongan medis">
           {emergencySafety.recommended_action ?? (program.stage === "elderly" ? "Hentikan program untuk saat ini dan segera bawa lansia ke IGD/rumah sakit atau hubungi layanan darurat setempat." : "Hentikan program untuk saat ini dan segera bawa anak ke IGD/rumah sakit atau hubungi layanan darurat setempat.")}
         </Alert>
         {emergencySafety.red_flags?.length ? <ul className="mt-3 space-y-1 text-sm text-secondary" aria-label="Tanda bahaya yang terdeteksi">
-          {emergencySafety.red_flags.map((flag) => <li key={flag.code ?? flag.label}>â€¢ {flag.label ?? "Tanda bahaya"}</li>)}
+          {emergencySafety.red_flags.map((flag) => <li key={flag.code ?? flag.label}>• {flag.label ?? "Tanda bahaya"}</li>)}
         </ul> : null}
       </div>}
 
@@ -849,8 +849,8 @@ export function NutritionProgramDailyWorkspace({ program, day, onProgramRefresh 
         <div className="text-sm font-medium text-muted" aria-live="polite">
           {saveState === "DIRTY" && <>Perubahan belum disimpan<span className="sr-only">Unsaved changes</span></>}
           {saveState === "SAVING" && "Menyimpan..."}
-          {saveState === "SAVED" && <>âœ“ Catatan hari ini sudah diperbarui<span className="sr-only">Perubahan sudah tersimpan</span></>}
-          {saveState === "SAVE_ERROR" && "Gagal menyimpan Â· Perubahan tetap ada di layar"}
+          {saveState === "SAVED" && <><Check className="mr-1 inline h-4 w-4" strokeWidth={2.5} aria-hidden="true" />Catatan hari ini sudah diperbarui<span className="sr-only">Perubahan sudah tersimpan</span></>}
+          {saveState === "SAVE_ERROR" && "Gagal menyimpan · Perubahan tetap ada di layar"}
           {saveState === "IDLE" && "Belum ada perubahan baru"}
         </div>
         <Button aria-label={(childAdaptive || program.stage === "elderly") ? (saveState === "SAVED" ? "Catatan hari ini tersimpan" : saveState === "SAVING" ? "Menyimpan catatan hari ini" : "Simpan catatan hari ini") : (saveState === "SAVED" ? "Progress Saved" : saveState === "SAVING" ? "Saving Progress" : "Save Progress")} onClick={() => void persist()} isLoading={saveState === "SAVING"} loadingLabel="Menyimpan..." disabled={saveState !== "DIRTY"}>{(childAdaptive || program.stage === "elderly") ? "Simpan hari ini" : "Simpan progress"}</Button>
@@ -872,7 +872,7 @@ export function NutritionProgramDailyWorkspace({ program, day, onProgramRefresh 
         <div className="mt-5 overflow-x-auto">
           <table className={`w-full ${childAdaptive ? "min-w-[560px]" : "min-w-[640px]"} border-collapse text-left text-sm`}>
             <thead><tr className="border-b border-line text-xs uppercase tracking-[.08em] text-muted"><th className="py-2 pr-4">Aktivitas</th><th className="py-2 pr-4">Target</th><th className="py-2 pr-4">Hasil</th>{!childAdaptive && <th className="py-2 pr-4">Adherence</th>}<th className="py-2">Status</th></tr></thead>
-            <tbody>{tasks.map((task) => { const value = results[task.key]; const backendMetric = useBackendMeasurement ? savedMetricByTask[task.key] : undefined; const adherence = backendMetric ? (backendMetric.adherence ?? null) : taskAdherence(task, value); const status = backendMetric ? stage6StatusDisplay(backendMetric.status, backendMetric.adherence ?? null) : resultStatus(task, value); return <tr key={`result-${task.key}`} className="border-b border-line/70"><td className="py-3 pr-4 font-semibold">{task.action_text ?? task.action ?? task.target_label}</td><td className="py-3 pr-4 text-secondary">{targetDisplay(task)}</td><td className="py-3 pr-4 text-secondary">{actualDisplay(task, value, !childAdaptive)}</td>{!childAdaptive && <td className="py-3 pr-4 text-secondary">{adherence === null ? "â€”" : `${adherence}%`}</td>}<td className="py-3 font-semibold">{status}</td></tr>; })}</tbody>
+            <tbody>{tasks.map((task) => { const value = results[task.key]; const backendMetric = useBackendMeasurement ? savedMetricByTask[task.key] : undefined; const adherence = backendMetric ? (backendMetric.adherence ?? null) : taskAdherence(task, value); const status = backendMetric ? stage6StatusDisplay(backendMetric.status, backendMetric.adherence ?? null) : resultStatus(task, value); return <tr key={`result-${task.key}`} className="border-b border-line/70"><td className="py-3 pr-4 font-semibold">{task.action_text ?? task.action ?? task.target_label}</td><td className="py-3 pr-4 text-secondary">{targetDisplay(task)}</td><td className="py-3 pr-4 text-secondary">{actualDisplay(task, value, !childAdaptive)}</td>{!childAdaptive && <td className="py-3 pr-4 text-secondary">{adherence === null ? "—" : `${adherence}%`}</td>}<td className="py-3 font-semibold">{status}</td></tr>; })}</tbody>
           </table>
         </div>
       </section>
