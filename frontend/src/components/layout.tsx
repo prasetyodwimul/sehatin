@@ -66,7 +66,7 @@ function ProfileMenu() {
         <ChevronDown size={15} aria-hidden="true" />
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 top-[calc(100%+.6rem)] w-64 overflow-hidden rounded-lg border border-line bg-surface p-2 shadow-xl">
+        <div role="menu" className="absolute right-0 top-[calc(100%+.6rem)] w-64 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-line bg-surface p-2 shadow-xl">
           {user ? (
             <>
               <div className="px-3 pb-2 pt-1">
@@ -111,15 +111,41 @@ function ProfileMenu() {
 
 export function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { status, user, logout } = useAuth();
 
   useEffect(() => setDrawerOpen(false), [pathname]);
+
+  useEffect(() => {
+    const updateScrolled = () => setScrolled(window.scrollY > 24);
+    updateScrolled();
+    window.addEventListener("scroll", updateScrolled, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrolled);
+  }, []);
+
   useEffect(() => {
     if (!drawerOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && setDrawerOpen(false);
+
+    const previousOverflow = document.body.style.overflow;
+    const previousTouchAction = document.body.style.touchAction;
+    const previousOverscrollBehavior = document.body.style.overscrollBehavior;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    document.body.style.overscrollBehavior = "none";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDrawerOpen(false);
+    };
+
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.touchAction = previousTouchAction;
+      document.body.style.overscrollBehavior = previousOverscrollBehavior;
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [drawerOpen]);
 
   const active = (href: string) => pathname.startsWith(href);
@@ -127,10 +153,25 @@ export function Navbar() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-3 z-[100] px-4 sm:top-4 sm:px-6" data-testid="site-navbar">
-        <div className={`mx-auto ${isAbout ? "max-w-[880px]" : "max-w-[1240px]"}`}>
-          <div className="relative rounded-full bg-[#064f4a] px-3 shadow-[0_12px_35px_rgba(6,79,74,.14)] ring-1 ring-black/5 sm:px-4">
-            <div className="flex h-14 items-center justify-between gap-3 sm:h-[68px]">
+      <header
+        className={`fixed inset-x-0 z-[100] transition-[top,left,right,padding] duration-300 ${
+          scrolled ? "top-3 px-3 sm:top-4 sm:px-5" : "top-0 px-0"
+        }`}
+        data-testid="site-navbar"
+      >
+        <div className={`mx-auto w-full transition-[max-width] duration-300 ${scrolled ? (isAbout ? "max-w-[880px]" : "max-w-[1240px]") : "max-w-none"}`}>
+          <div
+            className={`relative overflow-hidden bg-[#064f4a] px-3 ring-1 ring-black/5 transition-[border-radius,box-shadow] duration-300 sm:px-4 ${
+              scrolled
+                ? drawerOpen
+                  ? "rounded-[24px] shadow-[0_18px_45px_rgba(6,79,74,.20)]"
+                  : "rounded-full shadow-[0_12px_35px_rgba(6,79,74,.16)]"
+                : drawerOpen
+                  ? "rounded-b-[24px] shadow-[0_12px_35px_rgba(6,79,74,.14)]"
+                  : "rounded-none shadow-none"
+            }`}
+          >
+            <div className={`flex items-center justify-between gap-3 transition-[height] duration-300 ${scrolled ? "h-14 sm:h-[68px]" : "h-[68px] sm:h-[76px]"}`}>
               <Link href="/" className="inline-flex shrink-0 items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-light/80" aria-label="SEHATIN home">
                 <img
                   src="/images/sehatin-navbar-full-logo.png"
@@ -176,7 +217,7 @@ export function Navbar() {
             </div>
 
             {drawerOpen && (
-              <nav id="mobile-nav-drawer" aria-label="Navigasi seluler" className="border-t border-white/10 pb-3 pt-2 lg:hidden">
+              <nav id="mobile-nav-drawer" aria-label="Navigasi seluler" className="max-h-[calc(100dvh-5.5rem)] overflow-y-auto overscroll-contain border-t border-white/10 pb-3 pt-2 touch-pan-y lg:hidden">
                 <div className="flex flex-col px-2">
                   {NAV_LINKS.map((link) => (
                     <Link
@@ -218,7 +259,7 @@ export function Navbar() {
           </div>
         </div>
       </header>
-      <div className="h-[5.25rem] sm:h-[5.5rem]" aria-hidden="true" />
+      <div className="h-[4.25rem] sm:h-[4.75rem]" aria-hidden="true" />
     </>
   );
 }

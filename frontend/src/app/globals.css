@@ -251,3 +251,145 @@ a { text-underline-offset: 3px; }
   .nutrition-enter,
   .nutrition-check-pop { animation: none !important; }
 }
+
+
+/* Responsive safety net */
+img, svg, video, canvas, iframe {
+  max-width: 100%;
+}
+
+button, input, select, textarea {
+  max-width: 100%;
+}
+
+pre, code {
+  max-width: 100%;
+}
+
+pre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  max-width: 100%;
+}
+
+@media (max-width: 767px) {
+  html, body {
+    width: 100%;
+    min-width: 0;
+  }
+
+  body {
+    min-height: 100dvh;
+  }
+
+  /* Prevent large desktop-style spacing from creating horizontal/vertical overflow on phones. */
+  .display-title {
+    max-width: none;
+    font-size: clamp(2.5rem, 13vw, 4rem);
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .lede {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .feature-story {
+    gap: 1.5rem;
+    padding-block: 3rem;
+  }
+
+  .feature-story-visual {
+    min-height: 220px;
+    border-radius: 24px 24px 24px 8px;
+  }
+
+  .metric-strip {
+    grid-template-columns: minmax(0, 1fr);
+    border-radius: 18px;
+  }
+
+  .metric-cell {
+    min-width: 0;
+  }
+
+  .result-section {
+    padding-block: 2.5rem;
+  }
+
+  .editorial-list > li {
+    padding-left: 2.25rem;
+  }
+
+  .hero-network {
+    min-height: 280px;
+    border-radius: 24px 24px 24px 8px;
+  }
+
+  /* Mobile navbar follows the same top-state/floating-state behavior as desktop. */
+  [data-testid="site-navbar"] > div {
+    width: 100%;
+  }
+
+  [data-testid="site-navbar"] nav {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 420px) {
+  [data-testid="site-navbar"] {
+    top: .5rem;
+  }
+
+  [data-testid="site-navbar"] img {
+    width: 108px;
+    max-height: 40px;
+  }
+
+  .eyebrow {
+    font-size: .66rem;
+    letter-spacing: .14em;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  /* Avoid hover-only movement on touch devices. */
+  .group:hover,
+  .group:hover img,
+  a:hover {
+    transform: none;
+  }
+}
+
+
+/* Navbar state transitions */
+@media (max-width: 767px) {
+  [data-testid="site-navbar"] {
+    width: 100%;
+  }
+
+  [data-testid="site-navbar"] img {
+    transition: width 300ms ease, max-height 300ms ease;
+  }
+}
+
+@media (min-width: 768px) {
+  [data-testid="site-navbar"] {
+    will-change: top, left, right, padding;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-testid="site-navbar"],
+  [data-testid="site-navbar"] > div,
+  [data-testid="site-navbar"] > div > div,
+  [data-testid="site-navbar"] img {
+    transition: none !important;
+  }
+}
