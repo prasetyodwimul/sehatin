@@ -1,0 +1,390 @@
+"use client";
+
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, ArrowRight, Check, Loader2, ShieldCheck } from "lucide-react";
+import { Alert, Button, Input, Select, Textarea } from "@/components/ui";
+import { apiFetch } from "@/lib/api";
+import {
+  nutritionResultPath,
+  saveNutritionResult,
+  type NutritionAssessmentPayload,
+  type NutritionResult,
+  type NutritionStage,
+  type NutritionValidation,
+} from "@/lib/nutrition";
+
+const STEPS = ["Basic Information", "Eating Context", "Dietary Information", "Review"];
+const appetiteOptions = [
+  { label: "Nafsu makan biasa", value: "typical" },
+  { label: "Cenderung rendah", value: "low" },
+  { label: "Cenderung tinggi", value: "high" },
+];
+
+function listFromText(value: string) {
+  return value.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 10);
+}
+
+function validationVariant(status?: NutritionValidation["status"]) {
+  if (status === "INVALID") return "error" as const;
+  if (status === "WARNING") return "warning" as const;
+  return "success" as const;
+}
+
+export function NutritionAssessment({ stage }: { stage: NutritionStage }) {
+  const router = useRouter();
+  const [step, setStep] = useState(0);
+  const [age, setAge] = useState(stage === "mpasi" ? "8" : stage === "toddler" ? "36" : "65");
+  const [sex, setSex] = useState<"" | "female" | "male">("");
+  const [weight, setWeight] = useState("");
+  const [height, setHeight] = useState("");
+  const [feedingMode, setFeedingMode] = useState("");
+  const [textureLevel, setTextureLevel] = useState("smooth_mashed");
+  const [appetite, setAppetite] = useState<"low" | "typical" | "high">("typical");
+  const [mealFrequency, setMealFrequency] = useState(stage === "mpasi" ? "2" : "3");
+  const [activityLevel, setActivityLevel] = useState<"low" | "moderate" | "high">("moderate");
+  const [chewingDifficulty, setChewingDifficulty] = useState(false);
+  const [swallowingDifficulty, setSwallowingDifficulty] = useState(false);
+  const [animalSourceFoodDays, setAnimalSourceFoodDays] = useState("0");
+  const [fruitVegetableDays, setFruitVegetableDays] = useState("0");
+  const [recentFoodGroupCount, setRecentFoodGroupCount] = useState("0");
+  const [responsiveFeeding, setResponsiveFeeding] = useState<"usually" | "sometimes" | "rarely">("sometimes");
+  const [mealRoutine, setMealRoutine] = useState<"regular" | "mixed" | "irregular">("mixed");
+  const [sweetBeverageDays, setSweetBeverageDays] = useState("0");
+  const [pressureToEat, setPressureToEat] = useState(false);
+  const [screenDuringMeals, setScreenDuringMeals] = useState(false);
+  const [selfFeedingOpportunity, setSelfFeedingOpportunity] = useState(false);
+  const [allergies, setAllergies] = useState("");
+  const [restrictions, setRestrictions] = useState("");
+  const [medicalContext, setMedicalContext] = useState("");
+  const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [validationAttempted, setValidationAttempted] = useState(false);
+  const [validation, setValidation] = useState<NutritionValidation | null>(null);
+  const [validationLoading, setValidationLoading] = useState(false);
+  const [validationError, setValidationError] = useState("");
+
+  const ageRange = useMemo(() => {
+    if (stage === "mpasi") return { min: 6, max: 23, unit: "bulan" };
+    if (stage === "toddler") return { min: 24, max: 59, unit: "bulan" };
+    return { min: 60, max: 120, unit: "tahun" };
+  }, [stage]);
+
+  const anthropometricPayload = useCallback(() => {
+    const numericAge = Number(age);
+    const numericWeight = Number(weight);
+    const numericHeight = Number(height);
+    if (!sex || !Number.isFinite(numericAge) || !Number.isFinite(numericWeight) || !Number.isFinite(numericHeight) || numericWeight <= 0 || numericHeight <= 0) return null;
+    return {
+      stage,
+      ...(stage === "elderly" ? { age_years: numericAge } : { age_months: numericAge }),
+      sex,
+      weight_kg: numericWeight,
+      height_cm: numericHeight,
+    };
+  }, [age, height, sex, stage, weight]);
+
+  const runAnthropometricValidation = useCallback(async (signal?: AbortSignal) => {
+    const payload = anthropometricPayload();
+    if (!payload) return null;
+    setValidationLoading(true);
+    setValidationError("");
+    try {
+      const result = await apiFetch<NutritionValidation>("/api/nutrition/validate", {
+        method: "POST",
+        body: JSON.stringify(payload),
+        signal,
+        timeoutMs: 10_000,
+      });
+      setValidation(result);
+      return result;
+    } catch (err) {
+      if (signal?.aborted) return null;
+      setValidation(null);
+      setValidationError(err instanceof Error ? err.message : "Validasi pengukuran belum dapat dilakukan.");
+      return null;
+    } finally {
+      if (!signal?.aborted) setValidationLoading(false);
+    }
+  }, [anthropometricPayload]);
+
+  useEffect(() => {
+    if (!anthropometricPayload()) {
+      setValidation(null);
+      setValidationError("");
+      return;
+    }
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => void runAnthropometricValidation(controller.signal), 450);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [anthropometricPayload, runAnthropometricValidation]);
+
+  const localValidationMessage = useCallback((current: number) => {
+    const numericAge = Number(age);
+    if (current === 0) {
+      if (!Number.isFinite(numericAge) || numericAge < ageRange.min || numericAge > ageRange.max) {
+        return `Usia harus berada pada rentang ${ageRange.min}–${ageRange.max} ${ageRange.unit}.`;
+      }
+      if (!sex) return "Pilih jenis kelamin karena referensi pertumbuhan/kebutuhan menggunakan kelompok yang sesuai.";
+      if (!weight || !Number.isFinite(Number(weight)) || Number(weight) <= 0) return "Masukkan berat badan dalam kilogram.";
+      if (!height || !Number.isFinite(Number(height)) || Number(height) <= 0) return `Masukkan ${stage === "elderly" ? "tinggi badan" : "panjang/tinggi badan"} dalam sentimeter.`;
+    }
+    if (current === 1) {
+      if (stage === "mpasi" && !feedingMode) return "Pilih pola pemberian ASI/formula agar rekomendasi MPASI tidak menggunakan asumsi yang salah.";
+      const frequency = Number(mealFrequency);
+      if (!Number.isFinite(frequency) || frequency < 1 || frequency > 10) return "Frekuensi makan harus 1–10 kali per hari.";
+    }
+    return "";
+  }, [age, ageRange.max, ageRange.min, ageRange.unit, feedingMode, height, mealFrequency, sex, stage, weight]);
+
+  function validateLocalStep(current: number) {
+    const message = localValidationMessage(current);
+    setValidationAttempted(true);
+    setError(message);
+    return !message;
+  }
+
+  useEffect(() => {
+    if (!validationAttempted) return;
+    const message = localValidationMessage(step);
+    if (message) {
+      setError(message);
+      return;
+    }
+    if (step === 0 && validation && !validation.can_process) {
+      setError(validation.message);
+      return;
+    }
+    setError("");
+  }, [localValidationMessage, step, validation, validationAttempted]);
+
+
+  async function next() {
+    if (!validateLocalStep(step)) return;
+    if (step === 0) {
+      const latest = await runAnthropometricValidation();
+      if (!latest) {
+        setError("Validasi pengukuran belum berhasil. Pastikan backend tersedia lalu coba lagi.");
+        return;
+      }
+      if (!latest.can_process) {
+        setError(latest.message);
+        return;
+      }
+    }
+    setValidationAttempted(false);
+    setError("");
+    setStep((value) => Math.min(3, value + 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function back() {
+    setError("");
+    setValidationAttempted(false);
+    setStep((value) => Math.max(0, value - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function buildPayload(): NutritionAssessmentPayload | null {
+    if (!sex || !weight || !height) return null;
+    const payload: NutritionAssessmentPayload = {
+      stage,
+      sex,
+      weight_kg: Number(weight),
+      height_cm: Number(height),
+      allergies: listFromText(allergies),
+      dietary_restrictions: listFromText(restrictions),
+      medical_context: medicalContext.trim() || undefined,
+      notes: notes.trim() || undefined,
+      appetite,
+      meal_frequency: Number(mealFrequency),
+    };
+    if (stage === "elderly") {
+      payload.age_years = Number(age);
+      payload.activity_level = activityLevel;
+      payload.chewing_difficulty = chewingDifficulty;
+      payload.swallowing_difficulty = swallowingDifficulty;
+    } else {
+      payload.age_months = Number(age);
+    }
+    if (stage === "mpasi") {
+      payload.feeding_mode = feedingMode as "breastmilk" | "formula" | "mixed";
+      payload.texture_level = textureLevel as NutritionAssessmentPayload["texture_level"];
+      payload.animal_source_food_days = Number(animalSourceFoodDays);
+      payload.fruit_vegetable_days = Number(fruitVegetableDays);
+      payload.recent_food_group_count = Number(recentFoodGroupCount);
+      payload.responsive_feeding = responsiveFeeding;
+    } else if (stage === "toddler") {
+      payload.animal_source_food_days = Number(animalSourceFoodDays);
+      payload.fruit_vegetable_days = Number(fruitVegetableDays);
+      payload.meal_routine = mealRoutine;
+      payload.sweet_beverage_days = Number(sweetBeverageDays);
+      payload.pressure_to_eat = pressureToEat;
+      payload.screen_during_meals = screenDuringMeals;
+      payload.self_feeding_opportunity = selfFeedingOpportunity;
+    }
+    return payload;
+  }
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    if (!validateLocalStep(0) || !validateLocalStep(1)) return;
+    const latest = await runAnthropometricValidation();
+    if (!latest || !latest.can_process) {
+      setError(latest?.message ?? "Validasi pengukuran belum berhasil.");
+      return;
+    }
+    const payload = buildPayload();
+    if (!payload) {
+      setError("Assessment belum lengkap.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const result = await apiFetch<NutritionResult>("/api/nutrition/recommendation", { method: "POST", body: JSON.stringify(payload) });
+      saveNutritionResult(result, payload);
+      router.push(nutritionResultPath(stage));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Rekomendasi belum dapat dibuat. Silakan coba lagi.");
+      setLoading(false);
+    }
+  }
+
+  const fieldErrors = validationAttempted ? {
+    age: (!Number.isFinite(Number(age)) || Number(age) < ageRange.min || Number(age) > ageRange.max) ? `Gunakan rentang ${ageRange.min}–${ageRange.max} ${ageRange.unit}.` : "",
+    sex: !sex ? "Pilih jenis kelamin." : "",
+    weight: (!weight || !Number.isFinite(Number(weight)) || Number(weight) <= 0) ? "Masukkan berat badan yang valid." : "",
+    height: (!height || !Number.isFinite(Number(height)) || Number(height) <= 0) ? "Masukkan tinggi/panjang yang valid." : "",
+    feedingMode: stage === "mpasi" && !feedingMode ? "Pilih pola pemberian susu." : "",
+    mealFrequency: (!Number.isFinite(Number(mealFrequency)) || Number(mealFrequency) < 1 || Number(mealFrequency) > 10) ? "Masukkan frekuensi 1–10 kali per hari." : "",
+  } : { age: "", sex: "", weight: "", height: "", feedingMode: "", mealFrequency: "" };
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-4xl" aria-live="polite" aria-busy="true">
+        <div className="processing-line overflow-hidden rounded-lg border border-line bg-surface p-7 shadow-subtle md:p-10">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-light text-primary-dark"><Loader2 className="animate-spin" size={22} /></div>
+          <p className="eyebrow mt-8">Processing</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-4xl">Preparing your nutrition guidance...</h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-secondary">Memvalidasi pengukuran, menentukan kelompok referensi, menyusun rekomendasi, lalu menerapkan safety rules sebelum membuka halaman hasil.</p>
+          <div className="mt-8 grid gap-3 sm:grid-cols-4">{["Validate", "Calculate", "Recommend", "Safety check"].map((label, index) => <div key={label} className="border-t border-line pt-3"><p className="text-xs font-bold text-primary-dark">0{index + 1}</p><p className="mt-1 text-sm text-secondary">{label}</p></div>)}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} className="mx-auto max-w-5xl">
+      <div className="grid gap-8 lg:grid-cols-[250px_1fr] lg:items-start">
+        <aside className="lg:sticky lg:top-24">
+          <p className="eyebrow">Assessment progress</p>
+          <div className="step-rail mt-4" aria-hidden="true">{STEPS.map((_, index) => <span key={index} className={index <= step ? "active" : ""} />)}</div>
+          <p className="mt-4 text-2xl font-semibold tracking-[-0.03em]">{STEPS[step]}</p>
+          <p className="mt-2 text-sm leading-6 text-secondary">Langkah {step + 1} dari {STEPS.length}. Hanya data yang relevan dengan panduan nutrisi yang diminta.</p>
+          <ol className="mt-7 hidden space-y-4 lg:block">{STEPS.map((label, index) => <li key={label} className={`flex items-center gap-3 text-sm ${index === step ? "font-semibold text-primary-dark" : index < step ? "text-secondary" : "text-muted"}`}><span className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs ${index < step ? "border-primary bg-primary text-white" : index === step ? "border-primary text-primary-dark" : "border-line"}`}>{index < step ? <Check size={14} /> : index + 1}</span>{label}</li>)}</ol>
+        </aside>
+
+        <div className="min-w-0">
+          <div className="rounded-lg border border-line bg-surface p-6 shadow-subtle md:p-8">
+            {step === 0 && <BasicStep stage={stage} age={age} setAge={setAge} sex={sex} setSex={setSex} weight={weight} setWeight={setWeight} height={height} setHeight={setHeight} ageRange={ageRange} validation={validation} validationLoading={validationLoading} validationError={validationError} fieldErrors={fieldErrors} />}
+            {step === 1 && <EatingStep stage={stage} feedingMode={feedingMode} setFeedingMode={setFeedingMode} textureLevel={textureLevel} setTextureLevel={setTextureLevel} appetite={appetite} setAppetite={setAppetite} mealFrequency={mealFrequency} setMealFrequency={setMealFrequency} activityLevel={activityLevel} setActivityLevel={setActivityLevel} chewingDifficulty={chewingDifficulty} setChewingDifficulty={setChewingDifficulty} swallowingDifficulty={swallowingDifficulty} setSwallowingDifficulty={setSwallowingDifficulty} animalSourceFoodDays={animalSourceFoodDays} setAnimalSourceFoodDays={setAnimalSourceFoodDays} fruitVegetableDays={fruitVegetableDays} setFruitVegetableDays={setFruitVegetableDays} recentFoodGroupCount={recentFoodGroupCount} setRecentFoodGroupCount={setRecentFoodGroupCount} responsiveFeeding={responsiveFeeding} setResponsiveFeeding={setResponsiveFeeding} mealRoutine={mealRoutine} setMealRoutine={setMealRoutine} sweetBeverageDays={sweetBeverageDays} setSweetBeverageDays={setSweetBeverageDays} pressureToEat={pressureToEat} setPressureToEat={setPressureToEat} screenDuringMeals={screenDuringMeals} setScreenDuringMeals={setScreenDuringMeals} selfFeedingOpportunity={selfFeedingOpportunity} setSelfFeedingOpportunity={setSelfFeedingOpportunity} fieldErrors={fieldErrors} />}
+            {step === 2 && <DietaryStep allergies={allergies} setAllergies={setAllergies} restrictions={restrictions} setRestrictions={setRestrictions} medicalContext={medicalContext} setMedicalContext={setMedicalContext} notes={notes} setNotes={setNotes} />}
+            {step === 3 && <ReviewStep stage={stage} age={age} unit={ageRange.unit} sex={sex} weight={weight} height={height} feedingMode={feedingMode} appetite={appetite} mealFrequency={mealFrequency} allergies={allergies} restrictions={restrictions} medicalContext={medicalContext} validation={validation} />}
+          </div>
+          {error && <div className="mt-5"><Alert variant="error" title="Periksa assessment">{error}</Alert></div>}
+          <div className="mt-6 flex flex-col-reverse justify-between gap-3 sm:flex-row">
+            {step > 0 ? <Button type="button" variant="ghost" onClick={back}><ArrowLeft size={17} /> Kembali</Button> : <span />}
+            {step < 3 ? <Button type="button" size="lg" onClick={() => void next()} isLoading={step === 0 && validationLoading}>Lanjut <ArrowRight size={17} /></Button> : <Button type="submit" size="lg">Analyze My Nutrition <ArrowRight size={17} /></Button>}
+          </div>
+        </div>
+      </div>
+    </form>
+  );
+}
+
+function StepHeading({ index, title, body }: { index: string; title: string; body: string }) {
+  return <div className="mb-7"><p className="eyebrow">Step {index}</p><h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{title}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-secondary">{body}</p></div>;
+}
+
+type BasicStepProps = {
+  stage: NutritionStage; age: string; setAge: (value: string) => void; sex: "" | "female" | "male"; setSex: (value: "" | "female" | "male") => void;
+  weight: string; setWeight: (value: string) => void; height: string; setHeight: (value: string) => void; ageRange: { min: number; max: number; unit: string };
+  validation: NutritionValidation | null; validationLoading: boolean; validationError: string; fieldErrors: { age: string; sex: string; weight: string; height: string; feedingMode: string; mealFrequency: string };
+};
+
+function BasicStep({ stage, age, setAge, sex, setSex, weight, setWeight, height, setHeight, ageRange, validation, validationLoading, validationError, fieldErrors }: BasicStepProps) {
+  const child = stage !== "elderly";
+  return <><StepHeading index="01" title="Basic Information" body="Usia, jenis kelamin, berat, dan panjang/tinggi dibaca bersama—bukan memakai satu rentang kilogram universal." /><div className="grid gap-5 sm:grid-cols-2"><Input label={`Usia (${ageRange.unit})`} type="number" min={ageRange.min} max={ageRange.max} value={age} onChange={(e) => setAge(e.target.value)} required error={fieldErrors.age || undefined} helperText={`Rentang modul: ${ageRange.min}–${ageRange.max} ${ageRange.unit}.`} /><Select label="Jenis kelamin" required value={sex} onChange={(e) => setSex(e.target.value as BasicStepProps["sex"])} error={fieldErrors.sex || undefined} options={[{ value: "", label: "Pilih" }, { value: "female", label: "Perempuan" }, { value: "male", label: "Laki-laki" }]} helperText={child ? "Referensi WHO untuk anak bersifat spesifik menurut jenis kelamin." : "Digunakan untuk memilih kelompok referensi kebutuhan gizi."} /><Input label="Berat badan (kg)" type="number" step="0.1" min="0.1" max="300" value={weight} onChange={(e) => setWeight(e.target.value)} required error={fieldErrors.weight || undefined} helperText="Masukkan hasil pengukuran dalam kilogram." /><Input label={child ? "Panjang/Tinggi badan (cm)" : "Tinggi badan (cm)"} type="number" step="0.1" min="1" max="250" value={height} onChange={(e) => setHeight(e.target.value)} required error={fieldErrors.height || undefined} helperText={child ? "Gunakan hasil pengukuran terbaru dalam sentimeter; sistem mencocokkannya dengan referensi anak." : "Digunakan bersama berat sebagai konteks ukuran tubuh, bukan diagnosis."} /></div><div className="mt-6" aria-live="polite">{validationLoading && <div className="flex items-center gap-2 text-sm text-secondary"><Loader2 size={16} className="animate-spin" /> Memeriksa konsistensi pengukuran...</div>}{!validationLoading && validation && <Alert variant={validationVariant(validation.status)} title={validation.status === "VALID" ? "Data dapat diproses" : validation.status === "WARNING" ? "Periksa kembali pengukuran" : "Data belum dapat diproses"}>{validation.message}</Alert>}{!validationLoading && validation?.issues.length ? <ul className="mt-3 space-y-2 text-xs leading-5 text-secondary">{validation.issues.map((issue) => <li key={issue.code} className="flex gap-2"><span aria-hidden="true">{issue.level === "WARNING" ? "⚠" : issue.level === "INVALID" ? "×" : "✓"}</span><span>{issue.message}</span></li>)}</ul> : null}{!validationLoading && validationError && <Alert variant="warning" title="Validasi server belum tersedia">{validationError}</Alert>}{validation?.references?.length ? <div className="mt-4 flex items-center gap-2 text-xs text-muted"><ShieldCheck size={15} aria-hidden="true" /><span>{child ? "Validasi anak menggunakan WHO Child Growth Standards 2006." : "BMI hanya digunakan sebagai konteks konsistensi input."}</span></div> : null}</div></>;
+}
+
+type EatingStepProps = {
+  fieldErrors: { age: string; sex: string; weight: string; height: string; feedingMode: string; mealFrequency: string };
+  stage: NutritionStage;
+  feedingMode: string; setFeedingMode: (value: string) => void;
+  textureLevel: string; setTextureLevel: (value: string) => void;
+  appetite: "low" | "typical" | "high"; setAppetite: (value: "low" | "typical" | "high") => void;
+  mealFrequency: string; setMealFrequency: (value: string) => void;
+  activityLevel: "low" | "moderate" | "high"; setActivityLevel: (value: "low" | "moderate" | "high") => void;
+  chewingDifficulty: boolean; setChewingDifficulty: (value: boolean) => void;
+  swallowingDifficulty: boolean; setSwallowingDifficulty: (value: boolean) => void;
+  animalSourceFoodDays: string; setAnimalSourceFoodDays: (value: string) => void;
+  fruitVegetableDays: string; setFruitVegetableDays: (value: string) => void;
+  recentFoodGroupCount: string; setRecentFoodGroupCount: (value: string) => void;
+  responsiveFeeding: "usually" | "sometimes" | "rarely"; setResponsiveFeeding: (value: "usually" | "sometimes" | "rarely") => void;
+  mealRoutine: "regular" | "mixed" | "irregular"; setMealRoutine: (value: "regular" | "mixed" | "irregular") => void;
+  sweetBeverageDays: string; setSweetBeverageDays: (value: string) => void;
+  pressureToEat: boolean; setPressureToEat: (value: boolean) => void;
+  screenDuringMeals: boolean; setScreenDuringMeals: (value: boolean) => void;
+  selfFeedingOpportunity: boolean; setSelfFeedingOpportunity: (value: boolean) => void;
+};
+
+function EatingStep(props: EatingStepProps) {
+  const { stage } = props;
+  return <>
+    <StepHeading index="02" title="Pola makan & kebiasaan" body={stage === "mpasi" ? "Data ini membantu program memilih tindakan harian yang terukur untuk usia 6–23 bulan." : stage === "toddler" ? "Data ini membantu program memilih tindakan harian yang terukur untuk usia 24–59 bulan." : "Ceritakan konteks makan yang relevan."} />
+    <div className="grid gap-5 sm:grid-cols-2">
+      {stage === "mpasi" && <>
+        <Select label="Pola pemberian susu" required value={props.feedingMode} onChange={(e) => props.setFeedingMode(e.target.value)} error={props.fieldErrors.feedingMode || undefined} options={[{ value: "", label: "Pilih" }, { value: "breastmilk", label: "ASI" }, { value: "formula", label: "Formula" }, { value: "mixed", label: "ASI + formula" }]} />
+        <Select label="Tekstur saat ini" value={props.textureLevel} onChange={(e) => props.setTextureLevel(e.target.value)} options={[{ value: "smooth_mashed", label: "Lumat halus/kental" }, { value: "mashed_lumpy", label: "Lumat lebih kasar" }, { value: "finger_food", label: "Finger food aman" }, { value: "family_soft", label: "Makanan keluarga lunak" }]} />
+        <Input label="Hari dengan sumber protein hewani (0–7)" type="number" min="0" max="7" value={props.animalSourceFoodDays} onChange={(e) => props.setAnimalSourceFoodDays(e.target.value)} helperText="Berapa hari dari 7 hari terakhir anak mendapat protein hewani?" />
+        <Input label="Hari dengan sayur/buah (0–7)" type="number" min="0" max="7" value={props.fruitVegetableDays} onChange={(e) => props.setFruitVegetableDays(e.target.value)} helperText="Gunakan observasi 7 hari terakhir." />
+        <Input label="Kelompok pangan berbeda dalam 1 hari (0–8)" type="number" min="0" max="8" value={props.recentFoodGroupCount} onChange={(e) => props.setRecentFoodGroupCount(e.target.value)} helperText="Perkiraan indikator keragaman; bukan diagnosis." />
+        <Select label="Responsive feeding saat ini" value={props.responsiveFeeding} onChange={(e) => props.setResponsiveFeeding(e.target.value as EatingStepProps["responsiveFeeding"])} options={[{ value: "usually", label: "Biasanya dilakukan" }, { value: "sometimes", label: "Kadang dilakukan" }, { value: "rarely", label: "Jarang dilakukan" }]} helperText="Fokus pada sinyal lapar/kenyang dan hindari memaksa." />
+      </>}
+      {stage === "toddler" && <>
+        <Select label="Keteraturan makan utama" value={props.mealRoutine} onChange={(e) => props.setMealRoutine(e.target.value as EatingStepProps["mealRoutine"])} options={[{ value: "regular", label: "Teratur" }, { value: "mixed", label: "Kadang teratur" }, { value: "irregular", label: "Belum teratur" }]} />
+        <Input label="Hari dengan minuman berpemanis (0–7)" type="number" min="0" max="7" value={props.sweetBeverageDays} onChange={(e) => props.setSweetBeverageDays(e.target.value)} helperText="Jumlah hari dalam 7 hari terakhir saat minuman berpemanis ditawarkan." />
+        <Input label="Hari dengan sumber protein hewani (0–7)" type="number" min="0" max="7" value={props.animalSourceFoodDays} onChange={(e) => props.setAnimalSourceFoodDays(e.target.value)} />
+        <Input label="Hari dengan kesempatan sayur/buah (0–7)" type="number" min="0" max="7" value={props.fruitVegetableDays} onChange={(e) => props.setFruitVegetableDays(e.target.value)} helperText="Termasuk kesempatan mencoba; penerimaan tidak harus langsung." />
+        <CheckRow label="Sering memberi tekanan agar anak makan" checked={props.pressureToEat} onChange={props.setPressureToEat} />
+        <CheckRow label="Makan sering disertai screen" checked={props.screenDuringMeals} onChange={props.setScreenDuringMeals} />
+        <CheckRow label="Anak mendapat kesempatan makan mandiri" checked={props.selfFeedingOpportunity} onChange={props.setSelfFeedingOpportunity} />
+      </>}
+      <Select label="Nafsu makan" value={props.appetite} onChange={(e) => props.setAppetite(e.target.value as EatingStepProps["appetite"])} options={appetiteOptions} />
+      <Input label="Frekuensi makan per hari" type="number" min="1" max="10" value={props.mealFrequency} onChange={(e) => props.setMealFrequency(e.target.value)} error={props.fieldErrors.mealFrequency || undefined} />
+      {stage === "elderly" && <>
+        <Select label="Aktivitas" value={props.activityLevel} onChange={(e) => props.setActivityLevel(e.target.value as EatingStepProps["activityLevel"])} options={[{ value: "low", label: "Rendah" }, { value: "moderate", label: "Sedang" }, { value: "high", label: "Tinggi" }]} />
+        <CheckRow label="Kesulitan mengunyah" checked={props.chewingDifficulty} onChange={props.setChewingDifficulty} />
+        <CheckRow label="Kesulitan menelan" checked={props.swallowingDifficulty} onChange={props.setSwallowingDifficulty} />
+      </>}
+    </div>
+  </>;
+}
+
+function CheckRow({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) {
+  return <label className="flex min-h-14 items-center gap-3 rounded-md border border-line bg-background px-4 text-sm font-medium"><input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="h-4 w-4 accent-primary" /><span>{label}</span></label>;
+}
+
+type DietaryStepProps = { allergies: string; setAllergies: (value: string) => void; restrictions: string; setRestrictions: (value: string) => void; medicalContext: string; setMedicalContext: (value: string) => void; notes: string; setNotes: (value: string) => void; };
+function DietaryStep(props: DietaryStepProps) { return <><StepHeading index="03" title="Dietary Information" body="Tambahkan alergi, pantangan, atau konteks yang benar-benar kamu ketahui. Hindari memasukkan identitas pribadi." /><div className="grid gap-5"><Input label="Alergi makanan yang diketahui" value={props.allergies} onChange={(e) => props.setAllergies(e.target.value)} placeholder="Contoh: telur, susu sapi" helperText="Pisahkan dengan koma. Kosongkan jika tidak diketahui." /><Input label="Pantangan / pola makan" value={props.restrictions} onChange={(e) => props.setRestrictions(e.target.value)} placeholder="Contoh: vegetarian, tidak seafood" helperText="Pisahkan dengan koma." /><Textarea label="Konteks medis yang relevan" value={props.medicalContext} onChange={(e) => props.setMedicalContext(e.target.value)} maxLength={200} placeholder="Contoh: dokter pernah menyampaikan adanya penyakit ginjal." helperText="Jika konteks membutuhkan diet terapi, sistem akan membatasi personalisasi." /><Textarea label="Catatan tambahan" value={props.notes} onChange={(e) => props.setNotes(e.target.value)} maxLength={500} placeholder="Hal lain yang perlu diketahui tentang pola makan." /></div></>; }
+
+type ReviewStepProps = { stage: NutritionStage; age: string; unit: string; sex: string; weight: string; height: string; feedingMode: string; appetite: string; mealFrequency: string; allergies: string; restrictions: string; medicalContext: string; validation: NutritionValidation | null; };
+function ReviewStep({ stage, age, unit, sex, weight, height, feedingMode, appetite, mealFrequency, allergies, restrictions, medicalContext, validation }: ReviewStepProps) {
+  const rows = [["Kategori", stage === "mpasi" ? "MPASI" : stage === "toddler" ? "Toddler" : "Lansia"], ["Usia", `${age} ${unit}`], ["Jenis kelamin", sex === "female" ? "Perempuan" : "Laki-laki"], ["Berat", `${weight} kg`], [stage === "elderly" ? "Tinggi" : "Panjang/Tinggi", `${height} cm`], ...(feedingMode ? [["Pola susu", feedingMode]] : []), ["Nafsu makan", appetite], ["Frekuensi makan", `${mealFrequency}×/hari`], ["Alergi", allergies || "Tidak dicantumkan"], ["Pantangan", restrictions || "Tidak dicantumkan"]];
+  return <><StepHeading index="04" title="Review before analysis" body="Pastikan informasi ini benar. Hasil publik tetap request-based; data baru disimpan permanen jika nanti kamu memilih Save & Start Guided Program." /><dl className="divide-y divide-line border-y border-line">{rows.map(([key, value]) => <div key={key} className="grid gap-1 py-4 sm:grid-cols-[180px_1fr]"><dt className="text-xs font-bold uppercase tracking-[0.12em] text-muted">{key}</dt><dd className="text-sm font-medium text-text">{value}</dd></div>)}</dl>{validation && <div className="mt-6"><Alert variant={validationVariant(validation.status)} title={`Validasi pengukuran: ${validation.status}`}>{validation.message}</Alert></div>}{medicalContext && <div className="mt-4"><Alert variant="warning" title="Konteks kesehatan terdeteksi">Jika konteks ini membutuhkan penilaian profesional, sistem dapat membatasi personalisasi demi keamanan.</Alert></div>}<p className="mt-6 text-xs leading-5 text-muted">Dengan melanjutkan, kamu memahami bahwa hasil merupakan estimasi dan rekomendasi edukatif, bukan diagnosis atau terapi medis.</p></>;
+}

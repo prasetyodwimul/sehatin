@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" role="img" aria-hidden="true">
+<rect width="960" height="640" rx="42" fill="#F6FBF9"/>
+
+<circle cx="798" cy="114" r="78" fill="#FDE8E6"/>
+<g transform="translate(132 116)"><rect width="238" height="350" rx="38" fill="#FFFFFF" stroke="#E8B6B2" stroke-width="5"/><path d="M119 50c62 74 84 115 84 161 0 56-38 94-84 94s-84-38-84-94c0-46 22-87 84-161Z" fill="#E96B5D"/><rect x="72" y="-26" width="94" height="48" rx="20" fill="#FFFFFF" stroke="#E8B6B2" stroke-width="5"/><path d="M119-26v-54h118v78" stroke="#C94A4A" stroke-width="14" fill="none" stroke-linecap="round"/></g>
+<g transform="translate(430 170)"><rect width="350" height="250" rx="30" fill="#FFFFFF" stroke="#BFD8D1" stroke-width="5"/><path d="M42 58h150M42 100h210M42 142h130" stroke="#BFD8D1" stroke-width="14" stroke-linecap="round"/><g fill="#C94A4A"><circle cx="265" cy="72" r="24"/><circle cx="308" cy="72" r="24"/><circle cx="265" cy="122" r="24"/><circle cx="308" cy="122" r="24"/></g><path d="m251 204 24 24 52-62" stroke="#0F766E" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+</svg>

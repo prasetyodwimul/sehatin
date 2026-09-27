@@ -1,0 +1,203 @@
+﻿"use client";
+
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { MoreHorizontal, Trash2, Check, LockKeyhole, XCircle } from "lucide-react";
+import { AuthGate } from "@/components/auth-gate";
+import { useAuth } from "@/components/auth-provider";
+import { Alert, Button } from "@/components/ui";
+import { ApiError } from "@/lib/api";
+import { ViewportModal } from "@/components/viewport-modal";
+import { cancelNutritionProgram, deleteCancelledNutritionProgram, getNutritionProgram, type ProgramDay, type ProgramDetail } from "@/lib/nutrition-program";
+import { NutritionProgramDailyWorkspace } from "@/components/nutrition-program-daily-workspace";
+
+function stageLabel(stage: string) {
+  if (stage === "mpasi") return "Program MPASI";
+  if (stage === "toddler") return "Program Toddler";
+  return "Program Nutrisi Lansia";
+}
+
+function dayStatusMeta(day: ProgramDay) {
+  if (day.status === "COMPLETED") return { label: "Selesai", kind: "complete" as const };
+  if (day.status === "MISSED") return { label: "Terlewat", kind: "missed" as const };
+  if (day.status === "LOCKED") return { label: "Terkunci", kind: "locked" as const };
+  if (day.status === "IN_PROGRESS") return { label: "Sedang berjalan", kind: "today" as const };
+  return { label: "Hari ini", kind: "today" as const };
+}
+
+export function NutritionProgramDetail({ programId }: { programId: string }) {
+  const { status } = useAuth();
+  const [program, setProgram] = useState<ProgramDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [authOpen, setAuthOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      setProgram(await getNutritionProgram(programId));
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) setError("Login diperlukan untuk membuka program tersimpan ini.");
+      else if (err instanceof ApiError && err.status === 404) setError("Program tidak ditemukan atau tidak dapat diakses oleh akun ini.");
+      else setError(err instanceof Error ? err.message : "Program belum dapat dimuat.");
+      setProgram(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [programId]);
+
+  useEffect(() => {
+    if (status === "authenticated") void load();
+    if (status === "unauthenticated") {
+      setProgram(null);
+      setLoading(false);
+    }
+  }, [load, status]);
+
+  const currentDay = useMemo(() => {
+    if (!program) return null;
+    return program.days.find((item) => item.day_number === program.current_day && ["AVAILABLE", "IN_PROGRESS"].includes(item.status))
+      ?? program.days.find((item) => ["AVAILABLE", "IN_PROGRESS"].includes(item.status))
+      ?? program.days.find((item) => item.day_number === program.current_day)
+      ?? program.days[0]
+      ?? null;
+  }, [program]);
+
+  const previousDays = useMemo(() => (program?.days ?? []).filter((day) => day.day_number < (currentDay?.day_number ?? 0) && ["COMPLETED", "MISSED"].includes(day.status)).sort((a, b) => b.day_number - a.day_number), [currentDay?.day_number, program?.days]);
+  const active = Boolean(program && program.status === "ACTIVE" && !program.cancelled_at && !program.completed_at);
+  const cancelled = Boolean(program && (program.status === "CANCELLED" || program.cancelled_at));
+  const completed = Boolean(program && (program.status === "COMPLETED" || program.completed_at));
+  useEffect(() => {
+    if (!active) return;
+
+    // Refresh satu kali setelah workspace aktif.
+    // Jangan bergantung pada object `program`, karena `load()`
+    // membuat object baru dan dapat memicu infinite reload loop.
+    const timer = window.setTimeout(() => void load(), 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [active, load]);
+
+  async function confirmCancel() {
+    if (!program) return;
+    setBusy(true);
+    setError("");
+    try {
+      const updated = await cancelNutritionProgram(program.id);
+      setProgram((current) => current ? { ...current, ...updated, status: "CANCELLED" } : current);
+      setCancelOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Program belum dapat dibatalkan.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteProgram() {
+    if (!program) return;
+    setBusy(true);
+    setError("");
+    try {
+      await deleteCancelledNutritionProgram(program.id);
+      window.location.assign("/nutrition/history");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Program belum dapat dihapus.");
+      setBusy(false);
+    }
+  }
+
+  if (status === "loading" || loading) {
+    return <div className="mx-auto max-w-6xl animate-pulse py-8" aria-label="Memuat program nutrisi"><div className="h-9 w-48 bg-slate-200" /><div className="mt-5 h-3 w-full bg-slate-100" /><div className="mt-10 h-96 bg-slate-100" /></div>;
+  }
+
+  if (status === "unauthenticated") {
+    return <>
+      <section className="mx-auto max-w-3xl border border-line bg-white p-8">
+        <p className="eyebrow">Program nutrisi</p>
+        <h1 className="mt-3 text-3xl font-semibold">Masuk untuk melanjutkan program.</h1>
+        <p className="mt-3 text-sm leading-7 text-secondary">Program, progress, dan riwayat pribadi hanya dapat dibuka setelah sesi terverifikasi.</p>
+        <Button className="mt-6" onClick={() => setAuthOpen(true)}>Masuk</Button>
+      </section>
+      <AuthGate open={authOpen} onClose={() => setAuthOpen(false)} onAuthenticated={async () => { setAuthOpen(false); await load(); }} />
+    </>;
+  }
+
+  if (!program || !currentDay) {
+    return <div className="mx-auto max-w-3xl border border-line bg-white p-8"><Alert variant="error" title="Program tidak tersedia">{error || "Program belum dapat dibuka."}</Alert><Link href="/nutrition/program" className="mt-5 inline-flex text-sm font-semibold text-primary-dark">â† Kembali ke program</Link></div>;
+  }
+
+  return <div className="mx-auto max-w-6xl pb-20">
+    <div className="border-b border-line pb-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="eyebrow">{stageLabel(program.stage)}</p>
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h1 className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Hari {currentDay.day_number} dari {program.duration_days}</h1>
+            <span className="text-sm text-secondary">{program.days_completed} hari selesai</span>
+          </div>
+        </div>
+        {active && <div className="relative">
+          <button type="button" aria-label="Aksi program" onClick={() => setMoreOpen((value) => !value)} className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white"><MoreHorizontal size={18} /></button>
+          {moreOpen && <div className="absolute right-0 top-12 z-20 w-48 border border-line bg-white p-2 shadow-lg"><button type="button" className="flex min-h-10 w-full items-center px-3 text-left text-sm font-semibold text-error hover:bg-red-50" onClick={() => { setMoreOpen(false); setCancelOpen(true); }}>Batalkan program</button></div>}
+        </div>}
+        {cancelled && <Button variant="secondary" size="sm" onClick={() => setDeleteOpen(true)}><Trash2 size={15} /> Hapus program</Button>}
+      </div>
+    </div>
+
+    <section className="mt-6" aria-label="Perjalanan hari program">
+      <div className="overflow-x-auto pb-2">
+        <div className="min-w-[620px]">
+          <div className="flex items-center">
+            {program.days.map((day, index) => {
+              const meta = dayStatusMeta(day);
+              const clickable = day.status !== "LOCKED";
+              return <div key={day.id} className="flex min-w-0 flex-1 items-center">
+                <Link href={clickable ? `/nutrition/program/${program.id}/day/${day.day_number}` : "#"} aria-disabled={!clickable} className={`group flex min-w-0 flex-1 flex-col items-center gap-2 ${clickable ? "cursor-pointer" : "cursor-not-allowed pointer-events-none"}`}>
+                  <span className={`flex h-9 w-9 items-center justify-center rounded-full border text-xs font-bold ${meta.kind === "complete" ? "border-primary bg-primary text-white" : meta.kind === "today" ? "border-primary bg-primary-light text-primary-dark" : meta.kind === "missed" ? "border-amber-300 bg-amber-50 text-amber-800" : "border-slate-200 bg-slate-50 text-slate-400"}`}>{meta.kind === "complete" ? <Check size={14} /> : meta.kind === "locked" ? <LockKeyhole size={14} /> : meta.kind === "missed" ? <XCircle size={14} /> : day.day_number}</span>
+                  <span className={`text-[11px] font-semibold ${day.day_number === currentDay.day_number ? "text-primary-dark" : "text-muted"}`}>H{day.day_number}</span>
+                </Link>
+                {index < program.days.length - 1 && <span className={`h-px flex-1 ${day.day_number < currentDay.day_number ? "bg-primary" : "bg-slate-200"}`} aria-hidden="true" />}
+              </div>;
+            })}
+          </div>
+        </div>
+      </div>
+      <p className="mt-2 text-xs text-muted">Hari yang sudah tersedia dapat dibuka untuk review. Hari yang terkunci belum menampilkan panduan lengkap.</p>
+    </section>
+
+    {error && <div className="mt-6"><Alert variant="error">{error}</Alert></div>}
+
+    <main className="mt-8">
+      <NutritionProgramDailyWorkspace program={program} day={currentDay} onProgramRefresh={(fresh) => { setProgram(fresh); setError(""); }} />
+    </main>
+
+    {previousDays.length > 0 && <section className="mt-10 border-t border-line pt-7" id="history">
+      <button type="button" className="flex w-full items-center justify-between text-left" onClick={() => setHistoryOpen((value) => !value)} aria-expanded={historyOpen}>
+        <div><p className="eyebrow">History</p><h2 className="mt-2 text-xl font-semibold">Hari sebelumnya Â· {previousDays.length}</h2></div>
+        <span className="text-sm font-semibold text-primary-dark">{historyOpen ? "Tutup" : "Buka"}</span>
+      </button>
+      {historyOpen && <div className="mt-4 space-y-2">{previousDays.map((day) => <Link key={day.id} href={`/nutrition/program/${program.id}/day/${day.day_number}`} className="flex items-center justify-between gap-4 border border-line bg-white px-4 py-4 hover:border-primary/30"><span><span className="block text-xs font-bold uppercase tracking-[.1em] text-muted">Hari {day.day_number}</span><span className="mt-1 block text-sm font-semibold">{day.focus}</span></span><span className="text-xs font-semibold text-secondary">{day.status === "MISSED" ? "Terlewat Â· Review" : "Selesai Â· Review"}</span></Link>)}</div>}
+    </section>}
+
+    {(completed || cancelled) && <section className="mt-10 border-t border-line pt-7"><p className="eyebrow">Status program</p><h2 className="mt-2 text-xl font-semibold">{completed ? "Program selesai" : "Program dibatalkan"}</h2><p className="mt-2 text-sm leading-6 text-secondary">{completed ? "Evaluasi program dapat ditinjau dari alur evaluasi setelah hari terakhir." : "Program tetap tersimpan sebagai riwayat sampai kamu memilih menghapusnya."}</p></section>}
+
+    {cancelOpen && <ViewportModal onClose={() => !busy && setCancelOpen(false)} labelledBy="cancel-program-title">
+      <h2 id="cancel-program-title" className="text-xl font-semibold">Batalkan program?</h2>
+      <p className="mt-3 text-sm leading-6 text-secondary">Program ini akan berhenti dan tidak lagi menjadi program aktif. Progress yang sudah tersimpan tetap berada di riwayat.</p>
+      <div className="mt-6 flex flex-wrap justify-end gap-3"><Button variant="secondary" onClick={() => setCancelOpen(false)} disabled={busy}>Kembali</Button><Button onClick={() => void confirmCancel()} isLoading={busy} loadingLabel="Membatalkan...">Batalkan Program</Button></div>
+    </ViewportModal>}
+
+    {deleteOpen && <ViewportModal onClose={() => !busy && setDeleteOpen(false)} labelledBy="delete-program-title">
+      <h2 id="delete-program-title" className="text-xl font-semibold">Hapus program?</h2>
+      <p className="mt-3 text-sm leading-6 text-secondary">Program yang sudah dibatalkan akan dihapus dari riwayat setelah server berhasil memproses penghapusan.</p>
+      <div className="mt-6 flex flex-wrap justify-end gap-3"><Button variant="secondary" onClick={() => setDeleteOpen(false)} disabled={busy}>Kembali</Button><Button onClick={() => void deleteProgram()} isLoading={busy} loadingLabel="Menghapus...">Hapus Program</Button></div>
+    </ViewportModal>}
+  </div>;
+}
+

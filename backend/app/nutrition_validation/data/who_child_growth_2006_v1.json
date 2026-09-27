@@ -1,0 +1,1140 @@
+{
+  "metadata": {
+    "source": "World Health Organization",
+    "version": "WHO Child Growth Standards 2006",
+    "age_range": "0–60 months",
+    "last_reviewed_by_project": "2026-09-16",
+    "weight_for_age_url": "https://www.who.int/tools/child-growth-standards/standards/weight-for-age",
+    "weight_for_length_height_url": "https://www.who.int/tools/child-growth-standards/standards/weight-for-length-height",
+    "dataset_id": "who_child_growth_2006_v1",
+    "purpose": "screening_reference_only",
+    "indicators": [
+      "weight-for-age",
+      "weight-for-length",
+      "weight-for-height"
+    ],
+    "notes": "Sex-specific WHO Child Growth Standards field-table values used to screen input consistency; not diagnostic."
+  },
+  "weight_for_age": {
+    "female": {
+      "0": {
+        "low_3sd": 2.0,
+        "low_2sd": 2.4,
+        "median": 3.2,
+        "high_2sd": 4.2,
+        "high_3sd": 4.8
+      },
+      "1": {
+        "low_3sd": 2.7,
+        "low_2sd": 3.2,
+        "median": 4.2,
+        "high_2sd": 5.5,
+        "high_3sd": 6.2
+      },
+      "2": {
+        "low_3sd": 3.4,
+        "low_2sd": 3.9,
+        "median": 5.1,
+        "high_2sd": 6.6,
+        "high_3sd": 7.5
+      },
+      "3": {
+        "low_3sd": 4.0,
+        "low_2sd": 4.5,
+        "median": 5.8,
+        "high_2sd": 7.5,
+        "high_3sd": 8.5
+      },
+      "4": {
+        "low_3sd": 4.4,
+        "low_2sd": 5.0,
+        "median": 6.4,
+        "high_2sd": 8.2,
+        "high_3sd": 9.3
+      },
+      "5": {
+        "low_3sd": 4.8,
+        "low_2sd": 5.4,
+        "median": 6.9,
+        "high_2sd": 8.8,
+        "high_3sd": 10.0
+      },
+      "6": {
+        "low_3sd": 5.1,
+        "low_2sd": 5.7,
+        "median": 7.3,
+        "high_2sd": 9.3,
+        "high_3sd": 10.6
+      },
+      "7": {
+        "low_3sd": 5.3,
+        "low_2sd": 6.0,
+        "median": 7.6,
+        "high_2sd": 9.8,
+        "high_3sd": 11.1
+      },
+      "8": {
+        "low_3sd": 5.6,
+        "low_2sd": 6.3,
+        "median": 7.9,
+        "high_2sd": 10.2,
+        "high_3sd": 11.6
+      },
+      "9": {
+        "low_3sd": 5.8,
+        "low_2sd": 6.5,
+        "median": 8.2,
+        "high_2sd": 10.5,
+        "high_3sd": 12.0
+      },
+      "10": {
+        "low_3sd": 5.9,
+        "low_2sd": 6.7,
+        "median": 8.5,
+        "high_2sd": 10.9,
+        "high_3sd": 12.4
+      },
+      "11": {
+        "low_3sd": 6.1,
+        "low_2sd": 6.9,
+        "median": 8.7,
+        "high_2sd": 11.2,
+        "high_3sd": 12.8
+      },
+      "12": {
+        "low_3sd": 6.3,
+        "low_2sd": 7.0,
+        "median": 8.9,
+        "high_2sd": 11.5,
+        "high_3sd": 13.1
+      },
+      "13": {
+        "low_3sd": 6.4,
+        "low_2sd": 7.2,
+        "median": 9.2,
+        "high_2sd": 11.8,
+        "high_3sd": 13.5
+      },
+      "14": {
+        "low_3sd": 6.6,
+        "low_2sd": 7.4,
+        "median": 9.4,
+        "high_2sd": 12.1,
+        "high_3sd": 13.8
+      },
+      "15": {
+        "low_3sd": 6.7,
+        "low_2sd": 7.6,
+        "median": 9.6,
+        "high_2sd": 12.4,
+        "high_3sd": 14.1
+      },
+      "16": {
+        "low_3sd": 6.9,
+        "low_2sd": 7.7,
+        "median": 9.8,
+        "high_2sd": 12.6,
+        "high_3sd": 14.5
+      },
+      "17": {
+        "low_3sd": 7.0,
+        "low_2sd": 7.9,
+        "median": 10.0,
+        "high_2sd": 12.9,
+        "high_3sd": 14.8
+      },
+      "18": {
+        "low_3sd": 7.2,
+        "low_2sd": 8.1,
+        "median": 10.2,
+        "high_2sd": 13.2,
+        "high_3sd": 15.1
+      },
+      "19": {
+        "low_3sd": 7.3,
+        "low_2sd": 8.2,
+        "median": 10.4,
+        "high_2sd": 13.5,
+        "high_3sd": 15.4
+      },
+      "20": {
+        "low_3sd": 7.5,
+        "low_2sd": 8.4,
+        "median": 10.6,
+        "high_2sd": 13.7,
+        "high_3sd": 15.7
+      },
+      "21": {
+        "low_3sd": 7.6,
+        "low_2sd": 8.6,
+        "median": 10.9,
+        "high_2sd": 14.0,
+        "high_3sd": 16.0
+      },
+      "22": {
+        "low_3sd": 7.8,
+        "low_2sd": 8.7,
+        "median": 11.1,
+        "high_2sd": 14.3,
+        "high_3sd": 16.4
+      },
+      "23": {
+        "low_3sd": 7.9,
+        "low_2sd": 8.9,
+        "median": 11.3,
+        "high_2sd": 14.6,
+        "high_3sd": 16.7
+      },
+      "24": {
+        "low_3sd": 8.1,
+        "low_2sd": 9.0,
+        "median": 11.5,
+        "high_2sd": 14.8,
+        "high_3sd": 17.0
+      },
+      "25": {
+        "low_3sd": 8.2,
+        "low_2sd": 9.2,
+        "median": 11.7,
+        "high_2sd": 15.1,
+        "high_3sd": 17.3
+      },
+      "26": {
+        "low_3sd": 8.4,
+        "low_2sd": 9.4,
+        "median": 11.9,
+        "high_2sd": 15.4,
+        "high_3sd": 17.7
+      },
+      "27": {
+        "low_3sd": 8.5,
+        "low_2sd": 9.5,
+        "median": 12.1,
+        "high_2sd": 15.7,
+        "high_3sd": 18.0
+      },
+      "28": {
+        "low_3sd": 8.6,
+        "low_2sd": 9.7,
+        "median": 12.3,
+        "high_2sd": 16.0,
+        "high_3sd": 18.3
+      },
+      "29": {
+        "low_3sd": 8.8,
+        "low_2sd": 9.8,
+        "median": 12.5,
+        "high_2sd": 16.2,
+        "high_3sd": 18.7
+      },
+      "30": {
+        "low_3sd": 8.9,
+        "low_2sd": 10.0,
+        "median": 12.7,
+        "high_2sd": 16.5,
+        "high_3sd": 19.0
+      },
+      "31": {
+        "low_3sd": 9.0,
+        "low_2sd": 10.1,
+        "median": 12.9,
+        "high_2sd": 16.8,
+        "high_3sd": 19.3
+      },
+      "32": {
+        "low_3sd": 9.1,
+        "low_2sd": 10.3,
+        "median": 13.1,
+        "high_2sd": 17.1,
+        "high_3sd": 19.6
+      },
+      "33": {
+        "low_3sd": 9.3,
+        "low_2sd": 10.4,
+        "median": 13.3,
+        "high_2sd": 17.3,
+        "high_3sd": 20.0
+      },
+      "34": {
+        "low_3sd": 9.4,
+        "low_2sd": 10.5,
+        "median": 13.5,
+        "high_2sd": 17.6,
+        "high_3sd": 20.3
+      },
+      "35": {
+        "low_3sd": 9.5,
+        "low_2sd": 10.7,
+        "median": 13.7,
+        "high_2sd": 17.9,
+        "high_3sd": 20.6
+      },
+      "36": {
+        "low_3sd": 9.6,
+        "low_2sd": 10.8,
+        "median": 13.9,
+        "high_2sd": 18.1,
+        "high_3sd": 20.9
+      },
+      "37": {
+        "low_3sd": 9.7,
+        "low_2sd": 10.9,
+        "median": 14.0,
+        "high_2sd": 18.4,
+        "high_3sd": 21.3
+      },
+      "38": {
+        "low_3sd": 9.8,
+        "low_2sd": 11.1,
+        "median": 14.2,
+        "high_2sd": 18.7,
+        "high_3sd": 21.6
+      },
+      "39": {
+        "low_3sd": 9.9,
+        "low_2sd": 11.2,
+        "median": 14.4,
+        "high_2sd": 19.0,
+        "high_3sd": 22.0
+      },
+      "40": {
+        "low_3sd": 10.1,
+        "low_2sd": 11.3,
+        "median": 14.6,
+        "high_2sd": 19.2,
+        "high_3sd": 22.3
+      },
+      "41": {
+        "low_3sd": 10.2,
+        "low_2sd": 11.5,
+        "median": 14.8,
+        "high_2sd": 19.5,
+        "high_3sd": 22.7
+      },
+      "42": {
+        "low_3sd": 10.3,
+        "low_2sd": 11.6,
+        "median": 15.0,
+        "high_2sd": 19.8,
+        "high_3sd": 23.0
+      },
+      "43": {
+        "low_3sd": 10.4,
+        "low_2sd": 11.7,
+        "median": 15.2,
+        "high_2sd": 20.1,
+        "high_3sd": 23.4
+      },
+      "44": {
+        "low_3sd": 10.5,
+        "low_2sd": 11.8,
+        "median": 15.3,
+        "high_2sd": 20.4,
+        "high_3sd": 23.7
+      },
+      "45": {
+        "low_3sd": 10.6,
+        "low_2sd": 12.0,
+        "median": 15.5,
+        "high_2sd": 20.7,
+        "high_3sd": 24.1
+      },
+      "46": {
+        "low_3sd": 10.7,
+        "low_2sd": 12.1,
+        "median": 15.7,
+        "high_2sd": 20.9,
+        "high_3sd": 24.5
+      },
+      "47": {
+        "low_3sd": 10.8,
+        "low_2sd": 12.2,
+        "median": 15.9,
+        "high_2sd": 21.2,
+        "high_3sd": 24.8
+      },
+      "48": {
+        "low_3sd": 10.9,
+        "low_2sd": 12.3,
+        "median": 16.1,
+        "high_2sd": 21.5,
+        "high_3sd": 25.2
+      },
+      "49": {
+        "low_3sd": 11.0,
+        "low_2sd": 12.4,
+        "median": 16.3,
+        "high_2sd": 21.8,
+        "high_3sd": 25.5
+      },
+      "50": {
+        "low_3sd": 11.1,
+        "low_2sd": 12.6,
+        "median": 16.4,
+        "high_2sd": 22.1,
+        "high_3sd": 25.9
+      },
+      "51": {
+        "low_3sd": 11.2,
+        "low_2sd": 12.7,
+        "median": 16.6,
+        "high_2sd": 22.4,
+        "high_3sd": 26.3
+      },
+      "52": {
+        "low_3sd": 11.3,
+        "low_2sd": 12.8,
+        "median": 16.8,
+        "high_2sd": 22.6,
+        "high_3sd": 26.6
+      },
+      "53": {
+        "low_3sd": 11.4,
+        "low_2sd": 12.9,
+        "median": 17.0,
+        "high_2sd": 22.9,
+        "high_3sd": 27.0
+      },
+      "54": {
+        "low_3sd": 11.5,
+        "low_2sd": 13.0,
+        "median": 17.2,
+        "high_2sd": 23.2,
+        "high_3sd": 27.4
+      },
+      "55": {
+        "low_3sd": 11.6,
+        "low_2sd": 13.2,
+        "median": 17.3,
+        "high_2sd": 23.5,
+        "high_3sd": 27.7
+      },
+      "56": {
+        "low_3sd": 11.7,
+        "low_2sd": 13.3,
+        "median": 17.5,
+        "high_2sd": 23.8,
+        "high_3sd": 28.1
+      },
+      "57": {
+        "low_3sd": 11.8,
+        "low_2sd": 13.4,
+        "median": 17.7,
+        "high_2sd": 24.1,
+        "high_3sd": 28.5
+      },
+      "58": {
+        "low_3sd": 11.9,
+        "low_2sd": 13.5,
+        "median": 17.9,
+        "high_2sd": 24.4,
+        "high_3sd": 28.8
+      },
+      "59": {
+        "low_3sd": 12.0,
+        "low_2sd": 13.6,
+        "median": 18.0,
+        "high_2sd": 24.6,
+        "high_3sd": 29.2
+      },
+      "60": {
+        "low_3sd": 12.1,
+        "low_2sd": 13.7,
+        "median": 18.2,
+        "high_2sd": 24.9,
+        "high_3sd": 29.5
+      }
+    },
+    "male": {
+      "0": {
+        "low_3sd": 2.1,
+        "low_2sd": 2.5,
+        "median": 3.3,
+        "high_2sd": 4.4,
+        "high_3sd": 5.0
+      },
+      "1": {
+        "low_3sd": 2.9,
+        "low_2sd": 3.4,
+        "median": 4.5,
+        "high_2sd": 5.8,
+        "high_3sd": 6.6
+      },
+      "2": {
+        "low_3sd": 3.8,
+        "low_2sd": 4.3,
+        "median": 5.6,
+        "high_2sd": 7.1,
+        "high_3sd": 8.0
+      },
+      "3": {
+        "low_3sd": 4.4,
+        "low_2sd": 5.0,
+        "median": 6.4,
+        "high_2sd": 8.0,
+        "high_3sd": 9.0
+      },
+      "4": {
+        "low_3sd": 4.9,
+        "low_2sd": 5.6,
+        "median": 7.0,
+        "high_2sd": 8.7,
+        "high_3sd": 9.7
+      },
+      "5": {
+        "low_3sd": 5.3,
+        "low_2sd": 6.0,
+        "median": 7.5,
+        "high_2sd": 9.3,
+        "high_3sd": 10.4
+      },
+      "6": {
+        "low_3sd": 5.7,
+        "low_2sd": 6.4,
+        "median": 7.9,
+        "high_2sd": 9.8,
+        "high_3sd": 10.9
+      },
+      "7": {
+        "low_3sd": 5.9,
+        "low_2sd": 6.7,
+        "median": 8.3,
+        "high_2sd": 10.3,
+        "high_3sd": 11.4
+      },
+      "8": {
+        "low_3sd": 6.2,
+        "low_2sd": 6.9,
+        "median": 8.6,
+        "high_2sd": 10.7,
+        "high_3sd": 11.9
+      },
+      "9": {
+        "low_3sd": 6.4,
+        "low_2sd": 7.1,
+        "median": 8.9,
+        "high_2sd": 11.0,
+        "high_3sd": 12.3
+      },
+      "10": {
+        "low_3sd": 6.6,
+        "low_2sd": 7.4,
+        "median": 9.2,
+        "high_2sd": 11.4,
+        "high_3sd": 12.7
+      },
+      "11": {
+        "low_3sd": 6.8,
+        "low_2sd": 7.6,
+        "median": 9.4,
+        "high_2sd": 11.7,
+        "high_3sd": 13.0
+      },
+      "12": {
+        "low_3sd": 6.9,
+        "low_2sd": 7.7,
+        "median": 9.6,
+        "high_2sd": 12.0,
+        "high_3sd": 13.3
+      },
+      "13": {
+        "low_3sd": 7.1,
+        "low_2sd": 7.9,
+        "median": 9.9,
+        "high_2sd": 12.3,
+        "high_3sd": 13.7
+      },
+      "14": {
+        "low_3sd": 7.2,
+        "low_2sd": 8.1,
+        "median": 10.1,
+        "high_2sd": 12.6,
+        "high_3sd": 14.0
+      },
+      "15": {
+        "low_3sd": 7.4,
+        "low_2sd": 8.3,
+        "median": 10.3,
+        "high_2sd": 12.8,
+        "high_3sd": 14.3
+      },
+      "16": {
+        "low_3sd": 7.5,
+        "low_2sd": 8.4,
+        "median": 10.5,
+        "high_2sd": 13.1,
+        "high_3sd": 14.6
+      },
+      "17": {
+        "low_3sd": 7.7,
+        "low_2sd": 8.6,
+        "median": 10.7,
+        "high_2sd": 13.4,
+        "high_3sd": 14.9
+      },
+      "18": {
+        "low_3sd": 7.8,
+        "low_2sd": 8.8,
+        "median": 10.9,
+        "high_2sd": 13.7,
+        "high_3sd": 15.3
+      },
+      "19": {
+        "low_3sd": 8.0,
+        "low_2sd": 8.9,
+        "median": 11.1,
+        "high_2sd": 13.9,
+        "high_3sd": 15.6
+      },
+      "20": {
+        "low_3sd": 8.1,
+        "low_2sd": 9.1,
+        "median": 11.3,
+        "high_2sd": 14.2,
+        "high_3sd": 15.9
+      },
+      "21": {
+        "low_3sd": 8.2,
+        "low_2sd": 9.2,
+        "median": 11.5,
+        "high_2sd": 14.5,
+        "high_3sd": 16.2
+      },
+      "22": {
+        "low_3sd": 8.4,
+        "low_2sd": 9.4,
+        "median": 11.8,
+        "high_2sd": 14.7,
+        "high_3sd": 16.5
+      },
+      "23": {
+        "low_3sd": 8.5,
+        "low_2sd": 9.5,
+        "median": 12.0,
+        "high_2sd": 15.0,
+        "high_3sd": 16.8
+      },
+      "24": {
+        "low_3sd": 8.6,
+        "low_2sd": 9.7,
+        "median": 12.2,
+        "high_2sd": 15.3,
+        "high_3sd": 17.1
+      },
+      "25": {
+        "low_3sd": 8.8,
+        "low_2sd": 9.8,
+        "median": 12.4,
+        "high_2sd": 15.5,
+        "high_3sd": 17.5
+      },
+      "26": {
+        "low_3sd": 8.9,
+        "low_2sd": 10.0,
+        "median": 12.5,
+        "high_2sd": 15.8,
+        "high_3sd": 17.8
+      },
+      "27": {
+        "low_3sd": 9.0,
+        "low_2sd": 10.1,
+        "median": 12.7,
+        "high_2sd": 16.1,
+        "high_3sd": 18.1
+      },
+      "28": {
+        "low_3sd": 9.1,
+        "low_2sd": 10.2,
+        "median": 12.9,
+        "high_2sd": 16.3,
+        "high_3sd": 18.4
+      },
+      "29": {
+        "low_3sd": 9.2,
+        "low_2sd": 10.4,
+        "median": 13.1,
+        "high_2sd": 16.6,
+        "high_3sd": 18.7
+      },
+      "30": {
+        "low_3sd": 9.4,
+        "low_2sd": 10.5,
+        "median": 13.3,
+        "high_2sd": 16.9,
+        "high_3sd": 19.0
+      },
+      "31": {
+        "low_3sd": 9.5,
+        "low_2sd": 10.7,
+        "median": 13.5,
+        "high_2sd": 17.1,
+        "high_3sd": 19.3
+      },
+      "32": {
+        "low_3sd": 9.6,
+        "low_2sd": 10.8,
+        "median": 13.7,
+        "high_2sd": 17.4,
+        "high_3sd": 19.6
+      },
+      "33": {
+        "low_3sd": 9.7,
+        "low_2sd": 10.9,
+        "median": 13.8,
+        "high_2sd": 17.6,
+        "high_3sd": 19.9
+      },
+      "34": {
+        "low_3sd": 9.8,
+        "low_2sd": 11.0,
+        "median": 14.0,
+        "high_2sd": 17.8,
+        "high_3sd": 20.2
+      },
+      "35": {
+        "low_3sd": 9.9,
+        "low_2sd": 11.2,
+        "median": 14.2,
+        "high_2sd": 18.1,
+        "high_3sd": 20.4
+      },
+      "36": {
+        "low_3sd": 10.0,
+        "low_2sd": 11.3,
+        "median": 14.3,
+        "high_2sd": 18.3,
+        "high_3sd": 20.7
+      },
+      "37": {
+        "low_3sd": 10.1,
+        "low_2sd": 11.4,
+        "median": 14.5,
+        "high_2sd": 18.6,
+        "high_3sd": 21.0
+      },
+      "38": {
+        "low_3sd": 10.2,
+        "low_2sd": 11.5,
+        "median": 14.7,
+        "high_2sd": 18.8,
+        "high_3sd": 21.3
+      },
+      "39": {
+        "low_3sd": 10.3,
+        "low_2sd": 11.6,
+        "median": 14.8,
+        "high_2sd": 19.0,
+        "high_3sd": 21.6
+      },
+      "40": {
+        "low_3sd": 10.4,
+        "low_2sd": 11.8,
+        "median": 15.0,
+        "high_2sd": 19.3,
+        "high_3sd": 21.9
+      },
+      "41": {
+        "low_3sd": 10.5,
+        "low_2sd": 11.9,
+        "median": 15.2,
+        "high_2sd": 19.5,
+        "high_3sd": 22.1
+      },
+      "42": {
+        "low_3sd": 10.6,
+        "low_2sd": 12.0,
+        "median": 15.3,
+        "high_2sd": 19.7,
+        "high_3sd": 22.4
+      },
+      "43": {
+        "low_3sd": 10.7,
+        "low_2sd": 12.1,
+        "median": 15.5,
+        "high_2sd": 20.0,
+        "high_3sd": 22.7
+      },
+      "44": {
+        "low_3sd": 10.8,
+        "low_2sd": 12.2,
+        "median": 15.7,
+        "high_2sd": 20.2,
+        "high_3sd": 23.0
+      },
+      "45": {
+        "low_3sd": 10.9,
+        "low_2sd": 12.4,
+        "median": 15.8,
+        "high_2sd": 20.5,
+        "high_3sd": 23.3
+      },
+      "46": {
+        "low_3sd": 11.0,
+        "low_2sd": 12.5,
+        "median": 16.0,
+        "high_2sd": 20.7,
+        "high_3sd": 23.6
+      },
+      "47": {
+        "low_3sd": 11.1,
+        "low_2sd": 12.6,
+        "median": 16.2,
+        "high_2sd": 20.9,
+        "high_3sd": 23.9
+      },
+      "48": {
+        "low_3sd": 11.2,
+        "low_2sd": 12.7,
+        "median": 16.3,
+        "high_2sd": 21.2,
+        "high_3sd": 24.2
+      },
+      "49": {
+        "low_3sd": 11.3,
+        "low_2sd": 12.8,
+        "median": 16.5,
+        "high_2sd": 21.4,
+        "high_3sd": 24.5
+      },
+      "50": {
+        "low_3sd": 11.4,
+        "low_2sd": 12.9,
+        "median": 16.7,
+        "high_2sd": 21.7,
+        "high_3sd": 24.8
+      },
+      "51": {
+        "low_3sd": 11.5,
+        "low_2sd": 13.1,
+        "median": 16.8,
+        "high_2sd": 21.9,
+        "high_3sd": 25.1
+      },
+      "52": {
+        "low_3sd": 11.6,
+        "low_2sd": 13.2,
+        "median": 17.0,
+        "high_2sd": 22.2,
+        "high_3sd": 25.4
+      },
+      "53": {
+        "low_3sd": 11.7,
+        "low_2sd": 13.3,
+        "median": 17.2,
+        "high_2sd": 22.4,
+        "high_3sd": 25.7
+      },
+      "54": {
+        "low_3sd": 11.8,
+        "low_2sd": 13.4,
+        "median": 17.3,
+        "high_2sd": 22.7,
+        "high_3sd": 26.0
+      },
+      "55": {
+        "low_3sd": 11.9,
+        "low_2sd": 13.5,
+        "median": 17.5,
+        "high_2sd": 22.9,
+        "high_3sd": 26.3
+      },
+      "56": {
+        "low_3sd": 12.0,
+        "low_2sd": 13.6,
+        "median": 17.7,
+        "high_2sd": 23.2,
+        "high_3sd": 26.6
+      },
+      "57": {
+        "low_3sd": 12.1,
+        "low_2sd": 13.7,
+        "median": 17.8,
+        "high_2sd": 23.4,
+        "high_3sd": 26.9
+      },
+      "58": {
+        "low_3sd": 12.2,
+        "low_2sd": 13.8,
+        "median": 18.0,
+        "high_2sd": 23.7,
+        "high_3sd": 27.2
+      },
+      "59": {
+        "low_3sd": 12.3,
+        "low_2sd": 14.0,
+        "median": 18.2,
+        "high_2sd": 23.9,
+        "high_3sd": 27.6
+      },
+      "60": {
+        "low_3sd": 12.4,
+        "low_2sd": 14.1,
+        "median": 18.3,
+        "high_2sd": 24.2,
+        "high_3sd": 27.9
+      }
+    }
+  },
+  "weight_for_length_bounds": {
+    "female": [
+      [
+        50,
+        2.6,
+        4.5
+      ],
+      [
+        55,
+        3.5,
+        6.1
+      ],
+      [
+        60,
+        4.5,
+        7.8
+      ],
+      [
+        65,
+        5.5,
+        9.5
+      ],
+      [
+        70,
+        6.3,
+        10.9
+      ],
+      [
+        75,
+        7.1,
+        12.2
+      ],
+      [
+        80,
+        7.8,
+        13.4
+      ],
+      [
+        85,
+        8.7,
+        14.9
+      ],
+      [
+        90,
+        9.7,
+        16.5
+      ],
+      [
+        95,
+        10.6,
+        18.2
+      ],
+      [
+        100,
+        11.6,
+        20.0
+      ],
+      [
+        105,
+        12.7,
+        22.2
+      ],
+      [
+        110,
+        14.0,
+        24.7
+      ]
+    ],
+    "male": [
+      [
+        50,
+        2.6,
+        4.4
+      ],
+      [
+        55,
+        3.6,
+        6.0
+      ],
+      [
+        60,
+        4.7,
+        7.8
+      ],
+      [
+        65,
+        5.7,
+        9.4
+      ],
+      [
+        70,
+        6.6,
+        10.9
+      ],
+      [
+        75,
+        7.5,
+        12.3
+      ],
+      [
+        80,
+        8.2,
+        13.6
+      ],
+      [
+        85,
+        9.1,
+        14.9
+      ],
+      [
+        90,
+        10.1,
+        16.4
+      ],
+      [
+        95,
+        11.0,
+        17.9
+      ],
+      [
+        100,
+        12.0,
+        19.6
+      ],
+      [
+        105,
+        13.0,
+        21.7
+      ],
+      [
+        110,
+        14.2,
+        24.1
+      ]
+    ]
+  },
+  "weight_for_height_bounds": {
+    "female": [
+      [
+        65,
+        5.6,
+        9.7
+      ],
+      [
+        70,
+        6.4,
+        11.1
+      ],
+      [
+        75,
+        7.2,
+        12.3
+      ],
+      [
+        80,
+        7.9,
+        13.6
+      ],
+      [
+        85,
+        8.8,
+        15.1
+      ],
+      [
+        90,
+        9.8,
+        16.8
+      ],
+      [
+        95,
+        10.8,
+        18.5
+      ],
+      [
+        100,
+        11.7,
+        20.3
+      ],
+      [
+        105,
+        12.9,
+        22.5
+      ],
+      [
+        110,
+        14.2,
+        25.1
+      ],
+      [
+        115,
+        15.7,
+        28.1
+      ],
+      [
+        120,
+        17.3,
+        31.2
+      ]
+    ],
+    "male": [
+      [
+        65,
+        5.9,
+        9.6
+      ],
+      [
+        70,
+        6.8,
+        11.1
+      ],
+      [
+        75,
+        7.6,
+        12.5
+      ],
+      [
+        80,
+        8.3,
+        13.7
+      ],
+      [
+        85,
+        9.2,
+        15.1
+      ],
+      [
+        90,
+        10.2,
+        16.6
+      ],
+      [
+        95,
+        11.1,
+        18.1
+      ],
+      [
+        100,
+        12.1,
+        19.9
+      ],
+      [
+        105,
+        13.2,
+        22.0
+      ],
+      [
+        110,
+        14.4,
+        24.4
+      ],
+      [
+        115,
+        15.7,
+        27.2
+      ],
+      [
+        120,
+        17.1,
+        30.1
+      ]
+    ]
+  }
+}

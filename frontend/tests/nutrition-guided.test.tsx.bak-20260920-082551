@@ -1,0 +1,292 @@
+﻿import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import HomePage from "@/app/page";
+import { AuthGate } from "@/components/auth-gate";
+import { AuthProvider } from "@/components/auth-provider";
+import { Navbar } from "@/components/layout";
+import { NutritionAssessment } from "@/components/nutrition-assessment";
+import { NutritionHistory } from "@/components/nutrition-history";
+import { NutritionProgramDayDetail } from "@/components/nutrition-program-day-detail";
+import { NutritionProgramDetail } from "@/components/nutrition-program-detail";
+import { NutritionResult } from "@/components/nutrition-result";
+import { apiFetch, ApiError } from "@/lib/api";
+import { saveNutritionResult, type NutritionAssessmentPayload, type NutritionResult as NutritionResultData } from "@/lib/nutrition";
+
+const push = vi.fn();
+const replace = vi.fn();
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push, replace }),
+  usePathname: () => "/nutrition/program",
+}));
+vi.mock("@/lib/api", () => ({
+  API_BASE: "http://localhost:8000",
+  ApiError: class ApiError extends Error {
+    status: number; code?: string;
+    constructor(message: string, status = 0, code?: string) { super(message); this.status = status; this.code = code; }
+  },
+  apiFetch: vi.fn(),
+}));
+const mocked = vi.mocked(apiFetch);
+
+const user = { id: "u1", email: "care@example.com", created_at: "2026-09-16T00:00:00Z" };
+const goal = {
+  id: "g1", goal_key: "daily_consistency", title: "Rutinitas makan", description: "Jalankan panduan secara konsisten.",
+  baseline: 0, target: 10, actual: 0, unit: "completed days", measurement_method: "daily checklist completion",
+  duration_days: 14, priority: 1, status: "NOT_STARTED", progress_percentage: 0, remaining_gap: 10,
+};
+const summary = {
+  id: "p1", stage: "toddler", title: "Healthy Eating Habit Plan", status: "ACTIVE", duration_days: 14, cycle_number: 1,
+  parent_program_id: null, created_at: "2026-09-16T08:00:00Z", started_at: "2026-09-16T08:00:00Z", ends_at: "2026-09-29T08:00:00Z",
+  completed_at: null, cancelled_at: null, current_day: 1, days_completed: 0, completed_tasks: 0, total_tasks: 42,
+  progress_percent: 0, time_elapsed_days: 1, missed_days: 0, inactive_days: 0, last_activity_at: "2026-09-16T08:00:00Z", goal, cumulative_goal: null,
+};
+
+const toddlerAssessment: NutritionAssessmentPayload = { stage: "toddler", age_months: 36, sex: "female", weight_kg: 14, height_cm: 95 };
+const toddlerResult: NutritionResultData = {
+  stage: "toddler", category: "Toddler", age_band: "3 years", personalization_status: "personalized_education",
+  validation: { status: "VALID", can_process: true, message: "Data dapat diproses", issues: [], indicators: [], references: [] },
+  input_summary: ["Usia 36 bulan", "Berat 14 kg"], summary: "Panduan edukatif untuk pola makan balita.",
+  estimated_needs: { energy: "Estimasi edukatif" }, meal_pattern: { routine: "3 meals + planned snacks" }, priority_nutrients: ["Protein"],
+  food_groups: ["Protein", "Sayur dan buah"], recommendations: ["Jaga ritme makan yang konsisten."], sample_menu: ["Nasi, telur, sayur, buah"],
+  guidance: ["Tawarkan makanan tanpa memaksa."], safety_notes: ["Sesuaikan tekstur dan awasi saat makan."], disclaimer: "Informasi umum, bukan diagnosis.",
+  references: ["WHO guidance"], suggested_goals: [{ goal_key: "daily_consistency", title: "Rutinitas makan", description: "Jalankan panduan secara konsisten.", baseline: 0, target: 10, unit: "completed days", measurement_method: "daily checklist completion", duration: 14, priority: 1, status: "NOT_STARTED" }],
+};
+
+const availableDay = {
+  id: "d1", day_number: 1, focus: "Ritme makan", status: "AVAILABLE" as const, unlock_at: "2026-09-16T08:00:00Z", remaining_seconds: 0,
+  recommended_action: "Bangun jadwal makan.", meal_guidance: "Sediakan makan utama seimbang.",
+  action_details: { why: "Mendukung konsistensi.", action: "Bangun jadwal makan.", when: "Hari ini", how: "Ikuti struktur makan.", completion_criteria: "Checklist tersimpan." },
+  meal_guidance_details: { occasion: "Main meal", example: "Nasi, telur, sayur", food_groups: ["Protein"], preparation: "Sajikan sesuai toleransi.", substitutions: "Gunakan bahan setara." },
+  reference_notes: ["WHO guidance"], checklist: ["Action 1", "Action 2", "Action 3"], checklist_state: [false, false, false],
+  food_group_state: [false, false, false, false, false], has_complaint: null, complaint_note: null,
+  completed: false, completed_at: null, locked: false, missed: false, meal_label: null, meal_notes: null,
+};
+const lockedDay = {
+  id: "d2", day_number: 2, focus: "Variasi pangan", status: "LOCKED" as const, unlock_at: "2026-09-17T08:00:00Z", remaining_seconds: 3600,
+  recommended_action: "", meal_guidance: "", action_details: {}, meal_guidance_details: {}, reference_notes: [], checklist: [], checklist_state: [],
+  food_group_state: [], has_complaint: null, complaint_note: null,
+  completed: false, completed_at: null, locked: true, missed: false, meal_label: null, meal_notes: null,
+};
+const programDetail = { ...summary, profile: { stage: "toddler" }, assessment_snapshot: toddlerAssessment, recommendation: toddlerResult, goals: [goal], days: [availableDay, lockedDay], extension_history: [summary] };
+
+function withProvider(node: React.ReactNode) { return render(<AuthProvider>{node}</AuthProvider>); }
+
+beforeEach(() => { mocked.mockReset(); push.mockReset(); replace.mockReset(); sessionStorage.clear(); });
+
+describe("nutrition guided program UX/state", () => {
+  it("shows a guest profile trigger while logged out without pretending the guest is authenticated", async () => {
+    mocked.mockRejectedValue(new ApiError("Login diperlukan", 401));
+    withProvider(<Navbar />);
+    await waitFor(() => expect(mocked).toHaveBeenCalledWith("/api/auth/me"));
+    const guestTrigger = await screen.findByRole("button", { name: /Profile Guest/i });
+    expect(guestTrigger).toBeInTheDocument();
+    fireEvent.click(guestTrigger);
+    expect(screen.getByText("Guest Profile")).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /Profile Guest/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /^Sign in$/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /^Create account$/i })).toBeInTheDocument();
+  });
+
+  it("shows a personal nutrition overview on the authenticated homepage", async () => {
+    mocked.mockImplementation(async (path: string) => {
+      if (path === "/api/auth/me") return user as never;
+      if (path === "/api/nutrition/program") return [summary] as never;
+      throw new Error(`Unexpected API call: ${path}`);
+    });
+    withProvider(<HomePage />);
+    expect(await screen.findByRole("heading", { name: /Halo, Care\./i })).toBeInTheDocument();
+    expect(await screen.findByText(/Program sedang berjalan/i)).toBeInTheDocument();
+    expect(screen.getByText(/Program Toddler/i)).toBeInTheDocument();
+    expect(screen.getByText(/Lanjutkan program/i)).toBeInTheDocument();
+  });
+
+  it("shows the real authenticated profile trigger only after /auth/me succeeds", async () => {
+    mocked.mockImplementation(async (path: string) => {
+      if (path === "/api/auth/me") return user as never;
+      throw new Error(`Unexpected path ${path}`);
+    });
+    withProvider(<Navbar />);
+    expect(await screen.findByRole("button", { name: /Profile care@example.com/i })).toBeInTheDocument();
+    expect(screen.queryByText(/Guest/i)).not.toBeInTheDocument();
+  });
+
+  it("requires explicit save consent before contextual login/register can continue", async () => {
+    mocked.mockRejectedValue(new ApiError("Login diperlukan", 401));
+    const done = vi.fn();
+    withProvider(<AuthGate open requireSaveConsent onClose={() => {}} onAuthenticated={done} />);
+    const button = screen.getByRole("button", { name: /^(?:Login & Continue|Masuk & Lanjutkan)$/i });
+    expect(button).toBeDisabled();
+    expect(screen.getByText(/Centang konfirmasi untuk melanjutkan/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(button).toBeEnabled();
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(button).toBeDisabled();
+  });
+
+  it("clears stale assessment validation immediately as required fields become valid", async () => {
+    mocked.mockImplementation(async (path: string) => {
+      if (path === "/api/nutrition/validate") return { status: "VALID", can_process: true, message: "Data dapat diproses", issues: [], indicators: [], references: [] } as never;
+      throw new Error(`Unexpected path ${path}`);
+    });
+    render(<NutritionAssessment stage="toddler" />);
+    fireEvent.click(screen.getByRole("button", { name: /Lanjut/i }));
+    expect(screen.getByText("Periksa assessment")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(/Jenis kelamin/i), { target: { value: "female" } });
+    fireEvent.change(screen.getByLabelText(/Berat badan/i), { target: { value: "14" } });
+    fireEvent.change(screen.getByLabelText(/Panjang\/Tinggi badan/i), { target: { value: "95" } });
+    await waitFor(() => expect(screen.queryByText("Periksa assessment")).not.toBeInTheDocument());
+  });
+
+  it("uses contextual result CTAs based on actual auth/program state", async () => {
+    saveNutritionResult(toddlerResult, toddlerAssessment);
+    mocked.mockImplementation(async (path: string) => {
+      if (path === "/api/auth/me") return user as never;
+      if (path === "/api/nutrition/program") return [] as never;
+      throw new Error(`Unexpected path ${path}`);
+    });
+    withProvider(<NutritionResult stage="toddler" />);
+    expect(await screen.findByRole("button", { name: /^(?:Start Guided Program|Mulai Guided Program)$/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /(?:Save & Start Guided Program|Simpan & Mulai Guided Program)/i })).not.toBeInTheDocument();
+  });
+
+  it("renders the program day workspace with horizontal day journey and current-day guidance", async () => {
+    mocked.mockImplementation(async (path: string) => {
+      if (path === "/api/auth/me") return user as never;
+      if (path === "/api/nutrition/program/p1") return programDetail as never;
+      throw new Error(`Unexpected path ${path}`);
+    });
+
+    withProvider(<NutritionProgramDetail programId="p1" />);
+
+    expect(await screen.findByText("Program Toddler")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Hari 1 dari 14/i })).toBeInTheDocument();
+
+    const journey = screen.getByRole("region", { name: /Perjalanan hari program/i });
+    expect(journey).toBeInTheDocument();
+
+    const dayOne = screen.getByRole("link", { name: "H1" });
+    expect(dayOne).toHaveAttribute("href", "/nutrition/program/p1/day/1");
+
+    const dayTwo = screen.getByRole("link", { name: "H2" });
+    expect(dayTwo).toHaveAttribute("href", "#");
+    expect(dayTwo).toHaveAttribute("aria-disabled", "true");
+
+    expect(await screen.findByRole("region", { name: /Checklist hari ini/i })).toBeInTheDocument();
+  });
+
+  it("keeps a locked day visible with backend countdown but does not expose actual guidance", async () => {
+    mocked.mockImplementation(async (path: string) => {
+      if (path === "/api/auth/me") return user as never;
+      if (path === "/api/nutrition/program/p1/days/2") return { program_id: "p1", program_title: summary.title, program_status: "ACTIVE", duration_days: 14, current_day: 1, progress_percent: 7.14, missed_days: 0, inactive_days: 0, last_activity_at: summary.last_activity_at, goal, cumulative_goal: null, day: lockedDay } as never;
+      if (path === "/api/nutrition/program/p1") return programDetail as never;
+      throw new Error(`Unexpected path ${path}`);
+    });
+    withProvider(<NutritionProgramDayDetail programId="p1" dayNumber={2} />);
+    expect(await screen.findByText(/Panduan ini belum tersedia/i)).toBeInTheDocument();
+    expect(screen.getByText(/Unlocks in/i)).toBeInTheDocument();
+    expect(screen.queryByText("Bangun jadwal makan.")).not.toBeInTheDocument();
+  });
+
+  it("shows DIRTY â†’ SAVING/SAVED semantics and keeps the next day locked after completion", async () => {
+    mocked.mockImplementation(async (path: string, init?: RequestInit) => {
+      if (path === "/api/auth/me") return user as never;
+      if (path === "/api/nutrition/program/p1/days/1") return { program_id: "p1", program_title: summary.title, program_status: "ACTIVE", duration_days: 14, current_day: 1, progress_percent: 0, missed_days: 0, inactive_days: 0, last_activity_at: summary.last_activity_at, goal, cumulative_goal: null, day: availableDay } as never;
+      if (path === "/api/nutrition/program/p1") return programDetail as never;
+      if (path === "/api/nutrition/program/p1/daily-log" && init?.method === "POST") return { program_id: "p1", saved: true, saved_at: "2026-09-16T09:00:00Z", day_number: 1, day_completed: true, day_completed_at: "2026-09-16T09:00:00Z", checklist_state: [true, true, true], food_group_state: [true, true, false, false, false], has_complaint: false, complaint_note: null, days_completed: 1, total_days: 14, completed_tasks: 3, total_tasks: 42, progress_percent: 7.14, current_day: 1, time_elapsed_days: 1, missed_days: 0, inactive_days: 0, last_activity_at: "2026-09-16T09:00:00Z", program_status: "ACTIVE", completed_at: null, goals: [{ ...goal, actual: 1, progress_percentage: 10, remaining_gap: 9, status: "IN_PROGRESS" }], cumulative_goal: null } as never;
+      if (path === "/api/nutrition/program/p1/days/2") return { program_id: "p1", program_title: summary.title, program_status: "ACTIVE", duration_days: 14, current_day: 1, progress_percent: 7.14, missed_days: 0, inactive_days: 0, last_activity_at: "2026-09-16T09:00:00Z", goal, cumulative_goal: null, day: lockedDay } as never;
+      throw new Error(`Unexpected path ${path}`);
+    });
+    withProvider(<NutritionProgramDayDetail programId="p1" dayNumber={1} />);
+    expect((await screen.findAllByText(/Day 1 of 14/i)).length).toBeGreaterThan(0);
+    const save = screen.getByRole("button", { name: /Save Progress/i });
+    expect(save).toBeDisabled();
+    screen.getAllByRole("checkbox").forEach((checkbox) => fireEvent.click(checkbox));
+    fireEvent.click(screen.getByRole("button", { name: /^Tidak ada keluhan$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Karbohidrat/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Protein/i }));
+    expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
+    expect(save).toBeEnabled();
+    fireEvent.click(save);
+    const savedButtons = await screen.findAllByRole("button", { name: /Progress Saved/i });
+    expect(savedButtons.length).toBeGreaterThan(0);
+    savedButtons.forEach((button) => expect(button).toBeDisabled());
+    expect(screen.getByText(/Last saved/i)).toBeInTheDocument();
+    expect(screen.getByText(/Panduan berikutnya tersedia dalam/i)).toBeInTheDocument();
+  });
+
+  it("shows complaint notes only when the user reports a problem", async () => {
+    mocked.mockImplementation(async (path: string) => {
+      if (path === "/api/auth/me") return user as never;
+      if (path === "/api/nutrition/program/p1/days/1") return { program_id: "p1", program_title: summary.title, program_status: "ACTIVE", duration_days: 14, current_day: 1, progress_percent: 0, missed_days: 0, inactive_days: 0, last_activity_at: summary.last_activity_at, goal, cumulative_goal: null, day: availableDay } as never;
+      if (path === "/api/nutrition/program/p1") return programDetail as never;
+      throw new Error(`Unexpected path ${path}`);
+    });
+    withProvider(<NutritionProgramDayDetail programId="p1" dayNumber={1} />);
+    await screen.findByText(/Apakah ada keluhan atau kendala hari ini/i);
+    expect(screen.queryByLabelText(/Ceritakan keluhan atau kendalanya/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Ada keluhan$/i }));
+    expect(screen.getByLabelText(/Ceritakan keluhan atau kendalanya/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Tidak ada keluhan$/i }));
+    expect(screen.queryByLabelText(/Ceritakan keluhan atau kendalanya/i)).not.toBeInTheDocument();
+  });
+
+  it("cancels an active plan only after confirmation and preserves it as CANCELLED history", async () => {
+    const cancelled = { ...summary, status: "CANCELLED", cancelled_at: "2026-09-18T10:00:00Z" };
+    mocked.mockImplementation(async (path: string, init?: RequestInit) => {
+      if (path === "/api/auth/me") return user as never;
+      if (path === "/api/nutrition/history") return [summary] as never;
+      if (path === "/api/nutrition/program/p1/cancel" && init?.method === "POST") return cancelled as never;
+      throw new Error(`Unexpected path ${path}`);
+    });
+    withProvider(<NutritionHistory />);
+    await screen.findByText(summary.title);
+    fireEvent.click(screen.getByRole("button", { name: /More actions for Healthy Eating Habit Plan/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /Cancel Plan/i }));
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText(/Cancel Only mempertahankan progress/i)).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: /Cancel Only/i }));
+    await waitFor(() => expect(screen.getAllByText("CANCELLED").length).toBeGreaterThan(0));
+    expect(screen.getAllByText("CANCELLED").length).toBeGreaterThan(0);
+  });
+
+  it("shows missed checklist as expired read-only", async () => {
+    const missedDay = { ...availableDay, status: "MISSED" as const, missed: true, unlock_at: "2026-09-15T08:00:00Z" };
+    mocked.mockImplementation(async (path: string) => {
+      if (path === "/api/auth/me") return user as never;
+      if (path === "/api/nutrition/program/p1/days/1") return { program_id: "p1", program_title: summary.title, program_status: "ACTIVE", duration_days: 14, current_day: 2, progress_percent: 0, missed_days: 1, inactive_days: 0, last_activity_at: summary.last_activity_at, goal, cumulative_goal: null, day: missedDay } as never;
+      if (path === "/api/nutrition/program/p1") return { ...programDetail, current_day: 2, missed_days: 1, days: [missedDay, { ...lockedDay, status: "AVAILABLE", locked: false }] } as never;
+      throw new Error(`Unexpected path ${path}`);
+    });
+    withProvider(<NutritionProgramDayDetail programId="p1" dayNumber={1} />);
+    expect(await screen.findByText(/Checklist expired/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Expired.*Read Only/i })).toBeDisabled();
+    screen.getAllByRole("checkbox").forEach((checkbox) => expect(checkbox).toBeDisabled());
+  });
+
+  it("deletes a program from history only after it is already cancelled", async () => {
+    const cancelled = { ...summary, status: "CANCELLED", cancelled_at: "2026-09-18T10:00:00Z" };
+    mocked.mockImplementation(async (path: string, init?: RequestInit) => {
+      if (path === "/api/auth/me") return user as never;
+      if (path === "/api/nutrition/history") return [cancelled] as never;
+      if (path === "/api/nutrition/program/p1" && init?.method === "DELETE") return undefined as never;
+      throw new Error(`Unexpected path ${path}`);
+    });
+    withProvider(<NutritionHistory />);
+    await screen.findByText(summary.title);
+    fireEvent.click(screen.getByRole("button", { name: /More actions for Healthy Eating Habit Plan/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /Delete Program/i }));
+    const dialog = screen.getByRole("dialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: /^Delete Program$/i }));
+    await waitFor(() => expect(screen.queryByText(summary.title)).not.toBeInTheDocument());
+  });
+
+});
+
+
+
+
+
+
+
+

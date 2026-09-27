@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 460" role="img"><g stroke="#064f4a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+<ellipse cx="360" cy="390" rx="255" ry="38" fill="#dff5f0" stroke="none"/>
+<path d="M65 300c55-110 125-155 210-105 60-95 175-95 230-5 85-40 130 25 150 110" fill="#ccefe9" stroke="none"/>
+<path d="M105 340c30-82 90-113 145-65" fill="none" stroke="#9adfd4" stroke-width="26"/>
+<path d="M575 330c28-90 70-110 110-75" fill="none" stroke="#9adfd4" stroke-width="26"/>
+<!-- child --> <circle cx="210" cy="168" r="48" fill="#f4c3a7"/><path d="M164 160c8-57 82-70 101-13-15-12-30-13-43-3-20-5-37 1-58 16z" fill="#233c45" stroke="none"/><path d="M151 250c28-43 95-43 123 0l22 113H129z" fill="#0b9b8e"/><path d="M173 278h78" fill="none" stroke="#65cfc4"/><circle cx="194" cy="174" r="4" fill="#233c45" stroke="none"/><circle cx="226" cy="174" r="4" fill="#233c45" stroke="none"/>
+<!-- doctor --> <circle cx="365" cy="125" r="54" fill="#f4c3a7"/><path d="M311 124c4-67 96-75 111-4-24-17-45-23-68-12-14 7-27 12-43 16z" fill="#233c45" stroke="none"/><path d="M292 235c28-51 119-52 147 0l25 126H267z" fill="#ffffff"/><path d="M337 235v125M394 235v125" fill="none" stroke="#b7d9e5"/><path d="M363 247l-18 39 18 18 18-18z" fill="#7cced2"/><path d="M420 262c-12 28-13 56-13 83" fill="none"/><rect x="408" y="292" width="31" height="46" rx="6" fill="#e9f7f5"/>
+<!-- elderly --> <circle cx="518" cy="177" r="49" fill="#efbd9f"/><path d="M469 173c2-65 89-77 104-13-16-17-35-23-54-14-15 7-29 13-50 27z" fill="#c8c9c5" stroke="none"/><path d="M463 252c30-45 92-45 122 0l27 108H438z" fill="#f1a67e"/><path d="M487 177h14M523 177h14"/><circle cx="493" cy="177" r="14" fill="none"/><circle cx="530" cy="177" r="14" fill="none"/><path d="M507 177h9"/>
+<!-- icons --> <circle cx="610" cy="90" r="33" fill="#fff"/><path d="M594 89c0-18 27-20 27-1 0-19 27-17 27 1 0 19-27 33-27 33s-27-14-27-33z" fill="#f17b58" stroke="none"/>
+<circle cx="105" cy="102" r="28" fill="#fff"/><path d="M105 83v38M86 102h38" stroke="#0b9b8e"/>
+<circle cx="615" cy="245" r="34" fill="#fff"/><path d="M598 225h34v41h-34z" fill="#d9f0eb"/><path d="M605 234h20M605 243h20M605 252h14" stroke="#0b9b8e"/>
+</g></svg>
