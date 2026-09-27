@@ -271,7 +271,7 @@ export function StageCompanionIllustration({ stage, compact = false }: { stage: 
   if (context === "category") return <div role="img" aria-label={`Grafis kategori nutrisi ${label} tanpa figur manusia`} className="w-full">
     <IllustrationFrame compact>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={categoryAsset} alt="" className="absolute inset-0 h-full w-full object-cover object-center" aria-hidden="true" />
+      <img src={categoryAsset} alt="" className="absolute inset-0 h-full w-full object-contain object-center" aria-hidden="true" />
     </IllustrationFrame>
   </div>;
 
