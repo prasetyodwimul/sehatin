@@ -393,3 +393,58 @@ table {
     transition: none !important;
   }
 }
+
+/* SEHATIN iOS mobile stability */
+html {
+  width: 100%;
+  min-width: 0;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overscroll-behavior-x: none;
+}
+
+main {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+@media (max-width: 767px) {
+  .guided-program-mobile-safe,
+  .guided-program-mobile-safe * {
+    min-width: 0;
+  }
+
+  .guided-program-mobile-safe .grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .guided-program-mobile-safe article {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .guided-program-mobile-safe article > button {
+    justify-self: start;
+  }
+
+  .guided-program-mobile-safe dl {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .guided-program-mobile-safe [class*="col-span"] {
+    grid-column: auto !important;
+  }
+}

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.exc import IntegrityError
@@ -112,4 +112,5 @@ def update_profile(
         db.rollback()
         raise HTTPException(status_code=503, detail="Profil belum dapat disimpan. Coba lagi nanti.")
     return _user_response(user)
+
 

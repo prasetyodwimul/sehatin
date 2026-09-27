@@ -1,10 +1,17 @@
-import type { Metadata } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { Navbar, Footer } from "@/components/layout";
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
 export const metadata: Metadata = {
-  title: "SEHATIN — Trusted Health Ecosystem",
+  title: "SEHATIN â€” Trusted Health Ecosystem",
   description: "Informasi kesehatan dengan evidence, verifikasi, provenance, dan ketidakpastian yang transparan.",
 };
 
@@ -22,3 +29,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
