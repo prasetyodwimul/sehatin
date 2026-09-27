@@ -448,3 +448,208 @@ textarea {
     grid-column: auto !important;
   }
 }
+
+/* ============================================================
+   SEHATIN - GUIDED PROGRAM MOBILE UI
+   ============================================================ */
+
+.guided-program-mobile-safe {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.guided-program-mobile-safe * {
+  min-width: 0;
+}
+
+@media (max-width: 639px) {
+
+  .guided-program-mobile-safe .divide-y > article {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 0.75rem !important;
+    padding: 1rem !important;
+  }
+
+  .guided-program-mobile-safe .divide-y > article > button {
+    flex: 0 0 auto;
+    width: 3rem;
+    height: 3rem;
+    align-self: flex-start;
+  }
+
+  .guided-program-mobile-safe .divide-y > article > div {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .guided-program-mobile-safe .divide-y > article > div:last-child {
+    width: 100% !important;
+    margin-top: 0.25rem;
+    padding: 1rem !important;
+    border-radius: 1rem !important;
+  }
+
+  .guided-program-mobile-safe .divide-y > article p,
+  .guided-program-mobile-safe .divide-y > article h3,
+  .guided-program-mobile-safe .divide-y > article h4 {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .guided-program-mobile-safe .divide-y > article dl {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.25rem !important;
+  }
+
+  .guided-program-mobile-safe .divide-y > article [class*="grid-cols"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .guided-program-mobile-safe .divide-y > article [class*="col-span"] {
+    grid-column: auto !important;
+  }
+
+  .guided-program-mobile-safe input[type="number"] {
+    width: 5rem !important;
+    min-width: 5rem !important;
+    max-width: 5rem !important;
+    text-align: center;
+    font-size: 16px !important;
+  }
+
+  .guided-program-mobile-safe button {
+    flex-shrink: 0;
+  }
+
+  .guided-program-mobile-safe .divide-y {
+    overflow: hidden !important;
+  }
+}
+
+/* iPhone / Safari text rendering */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* ============================================================
+   SEHATIN - NUTRITION PROGRAM SELECTOR MOBILE / iOS
+   ============================================================ */
+
+.nutrition-program-mobile-safe {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.nutrition-program-mobile-safe * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.nutrition-program-mobile-safe button,
+.nutrition-program-mobile-safe a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.nutrition-program-mobile-safe input,
+.nutrition-program-mobile-safe select,
+.nutrition-program-mobile-safe textarea {
+  font-size: 16px !important;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (max-width: 639px) {
+
+  .nutrition-program-mobile-safe {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    overflow-x: clip !important;
+  }
+
+  /* Selector program menjadi satu kolom */
+  .nutrition-program-mobile-safe [class*="grid-cols-2"],
+  .nutrition-program-mobile-safe [class*="grid-cols-3"],
+  .nutrition-program-mobile-safe [class*="grid-cols-4"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  /* Card MPASI / Toddler / Lansia */
+  .nutrition-program-mobile-safe button {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  /* Isi card tidak boleh melebar */
+  .nutrition-program-mobile-safe button > div,
+  .nutrition-program-mobile-safe button > span {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Judul program */
+  .nutrition-program-mobile-safe h2,
+  .nutrition-program-mobile-safe h3,
+  .nutrition-program-mobile-safe h4 {
+    max-width: 100% !important;
+    overflow-wrap: anywhere;
+  }
+
+  /* Deskripsi */
+  .nutrition-program-mobile-safe p {
+    max-width: 100% !important;
+    overflow-wrap: anywhere;
+  }
+
+  /* Hilangkan efek elemen yang menyebabkan horizontal overflow */
+  .nutrition-program-mobile-safe [class*="min-w-["],
+  .nutrition-program-mobile-safe [class*="min-w-"] {
+    min-width: 0 !important;
+  }
+
+  /* Jangan biarkan flex child memaksa layar melebar */
+  .nutrition-program-mobile-safe .flex {
+    min-width: 0 !important;
+  }
+
+  .nutrition-program-mobile-safe .flex > * {
+    min-width: 0 !important;
+    max-width: 100%;
+  }
+}
+
+/* iOS Safari tidak melakukan text auto enlargement */
+html,
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Hindari gesture horizontal yang membuat halaman terasa zoom / bergeser */
+html {
+  overscroll-behavior-x: none;
+}
+
+body {
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+}
